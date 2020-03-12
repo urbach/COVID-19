@@ -34,13 +34,14 @@ xdatad <- read.csv("time_series_19-covid-Deaths.csv")
 xdata <- read.csv("time_series_19-covid-Confirmed.csv")
 N <- dim(xdata)[2]
 ii <- c(5:N)
+x <- c(1:length(ii))
 ```
 
 # Disclaimer
 
 Ich bin kein Mediziner, sondern theoretischer Physiker. 
 
-# Die Daten
+## Die Daten
 
 Als Datengrundlage für die folgende Analyse nutze ich die Daten, die
 vom John Hopkins University Center for Systems Science and Engineering
@@ -54,6 +55,14 @@ bestätigten Fälle, die tatsächliche Anzahl an Infektionen ist
 möglicherweise viel höher. Letzteres muss man bei jeglichen
 Vergleichen zwischen Ländern im Hinterkopf behalten.
 
+Darüberhinaus ist die Systematik bei der Datenaufnahme mit an
+Sicherheit grenzender Wahrscheinlichkeit zwischen den verschiedenen
+Ländern nicht vergleichbar. Dies macht quantitative Vergleiche sehr
+schwierig. Als Minimalannahme gehe ich allerdings davon aus, dass
+innerhalb eines Landes die Datenaufnahme konsistent erfolgt, obwohl
+klar ist, dass das z.B. in China und auch anderen Ländern nicht immer
+der Fall war. 
+
 # Bestätigte Infektionen
 
 ## Welt
@@ -62,13 +71,13 @@ Zunächst der Gesamtüberblick über die Anzahl der bestätigten
 Infektionen als Funktion der Tage seit dem 22.1.2020.
 
 ```{r, echo=FALSE}
-plot(y=as.vector(colSums(xdata[, ii])), x=ii,
+plot(y=as.vector(colSums(xdata[, ii])), x=x,
      type='l', ylim=c(0,150000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
-lines(y=as.vector(colSums(xdata[xdata$Country.Region=="Mainland China", ii])),
-      x=ii, col="blue", lty=2, lwd=1.5)
-lines(y=as.vector(colSums(xdata[xdata$Country.Region!="Mainland China", ii])),
-      x=ii, col="black", lty=3, lwd=1.5)
+lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
+      x=x, col="blue", lty=2, lwd=1.5)
+lines(y=as.vector(colSums(xdata[!grepl("China", x=xdata$Country.Region), ii])),
+      x=x, col="black", lty=3, lwd=1.5)
 
 legend("topleft",
        legend=c("Welt", "nur Festland China", "Welt ohne China"),
@@ -84,13 +93,13 @@ signifikant im Rest der Welt. Auf einer logarithmischen Skala kann man
 die verschiedenen Regionen besser vergleichen:
 
 ```{r, echo=FALSE}
-plot(y=as.vector(colSums(xdata[, ii])), x=ii,
+plot(y=as.vector(colSums(xdata[, ii])), x=x,
      log="y", type='l', ylim=c(50,150000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
-lines(y=as.vector(colSums(xdata[xdata$Country.Region=="Mainland China", ii])),
-      x=ii, col="blue", lty=2, lwd=1.5)
-lines(y=as.vector(colSums(xdata[xdata$Country.Region!="Mainland China", ii])),
-      x=ii, col="black", lty=3, lwd=1.5)
+lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
+      x=x, col="blue", lty=2, lwd=1.5)
+lines(y=as.vector(colSums(xdata[!grepl("China", x=xdata$Country.Region), ii])),
+      x=x, col="black", lty=3, lwd=1.5)
 
 legend("topleft",
        legend=c("Welt", "nur Festland China", "Alles ohne China"),
@@ -101,11 +110,17 @@ legend("topleft",
 
 ## Deutschland
 
+Im der nächsten Abbildung sind Anzahl der bestätigten Infektionen, der
+genesenen und der Todesfälle für Deutschland abgebildet, wiederum auf einer
+logarithmischen Skala. Man sieht, dass wir ca. 30 Tage lang
+nur relative eingeschleppte Fälle hatten, und dann die Verbreitung der
+Infektion in der Gesellschaft über Ansteckung. 
+
 ```{r, echo=FALSE, warning=FALSE}
-plot(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=ii, log="y", type='l',
-     xlab=c("Time/days"), ylab="Cases")
-lines(y=as.vector(xdatar[xdata$Country.Region=="Germany",])[ii], x=ii, col="red")
-lines(y=as.vector(xdatad[xdata$Country.Region=="Germany",])[ii], x=ii, col="blue")
+plot(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, log="y", type='l',
+     xlab=c("Tage seit 22.01.2020"), ylab="Cases")
+lines(y=as.vector(xdatar[xdata$Country.Region=="Germany",])[ii], x=x, col="red")
+lines(y=as.vector(xdatad[xdata$Country.Region=="Germany",])[ii], x=x, col="blue")
 legend("topleft",
        legend=c("Confirmed", "Recovered", "Deaths"),
        bty="n",
@@ -113,52 +128,202 @@ legend("topleft",
        lty=c(1,1, 1))
 ```
 
+Es sieht so aus, als würde es ungefähr 20 Tage bis zur Genesung
+dauern. D.h. mit großer Wahrscheinlichkeit sind noch keine der
+Personen genesen, die mit dem exponentiellen Anstieg krank geworden
+sind. 
+
 ## Verschiedene Länder im Vergleich
 
+Wieder zurück zu nur den bestätigten Infektionen ist es interessant,
+verschiedene Länder zu vergleichen. In der nächsten Abbildung sind
+die Fallzahlen für einige europäische Länder, USA und Südkorea
+dargestellt. Es handelt sich dabei um Länder mit relativ ähnlichem
+Lebensstandard. 
+Es fällt sofort auf, dass Deutschland, Frankreich,
+Spanien und die USA praktisch identisch Fallzahlverläufe zeigen.
+Insbesondere ist die Steigung identisch.
+
+In Italien und Südkorea sind die Fallzahlen schon deutlich höher,
+allerdings ist auch hier die Steigung sehr ähnlich zu den oben
+genannten Ländern. Allerdings gibt es einen ersten interessanten
+Unterschied zwischen Südkorea und Italien: In Südkorea scheint die
+Kurve abzuflachen, was in Italien (noch) nicht zu erkennen ist. Es
+bleibt natürlich abzuwarten, ob dies eine Fluktuation ist. Wenn sich
+dieser Trend aber bestätigt, wäre es wichtig zu verstehen, warum
+Südkorea es geschafft hat, die Ausbreitung einzudämmen. Die
+entsprechenden Maßnahmen könnte man dann auf andere Länder anwenden.
+
+
 ```{r, echo=FALSE, warning=FALSE}
-plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=ii,
+plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
      log="y", type='l', ylim=c(1,10000),
-     xlab=c("Time/days"), ylab="Cases")
-lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=ii, col="red", lty=2)
-lines(y=as.vector(colSums(xdata[xdata$Country.Region=="US",ii])), x=ii, col="blue", lty=3)
-lines(y=as.vector(xdata[xdata$Country.Region=="South Korea",])[ii], x=ii, col="darkorange", lty=4)
-lines(y=as.vector(xdata[xdata$Country.Region=="France",])[ii], x=ii, col="darkgreen", lty=5)
-lines(y=as.vector(xdata[xdata$Country.Region=="Iran",])[ii], x=ii, col="grey", lty=5)
+     xlab=c("Tage seit 22.01.2020"), ylab="Cases")
+lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
+lines(y=as.vector(colSums(xdata[grepl("US", x=xdata$Country.Region),ii])), x=x, col="blue", lty=3)
+lines(y=as.vector(xdata[xdata$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
+lines(y=as.vector(colSums(xdata[xdata$Country.Region=="France",ii])), x=x, col="darkgreen", lty=5)
+lines(y=as.vector(xdata[xdata$Country.Region=="Spain",])[ii], x=x, col="grey", lty=6)
 legend("topleft",
-       legend=c("Italy", "Germany", "US", "South Korea", "France"),
+       legend=c("Italy", "Germany", "US", "Korea, South", "France", "Spain"),
        bty="n",
-       col=c("black","red", "blue", "darkorange", "darkgreen"),
+       col=c("black","red", "blue", "darkorange", "darkgreen", "grey"),
        lty=c(1:6))
 ```
 
+Aus der letzten Abbildung könnte man versucht sein zu schließen, dass
+Deutschland zusammen mit Frankreich und Spanien in der Ausbreitung des
+Viruses ca. acht Tage hinter Italien liegt und wir damit in acht Tagen
+mit ähnlichen Verhältnissen wie in Italien rechnen müssen. Dies könnte
+natürlich der Fall sein, allerdings kann dieser Unterschied meiner
+Meinung nach auch mit verschiedenen Testverfahren oder einfach mit
+verschieden häufigen Tests zusammen hängen. Möglicherweise ist hier
+die Anzahl an Todesfällen die aussagekräftigere Größe.
+
+Bei genauerer Betrachtung der Kurve für die USA drängt sich der
+Eindruck auf, dass die Zahlen hier deutlich unterschätzt sind. Hier
+kann man in den nächsten Tagen einen deutlich überproportionalen
+Anstieg erwarten.
+
+Ein weiterer interessanter Unterschied tritt zutage, wenn man Japan
+mit in die Liste der Länder aufnimmt: Der Anstieg der Fallzahlen ist
+in Japan signifikant langsamer als in den eben genannten Ländern. 
+Warum dies der Fall ist (wenn es nicht mit systematischen Effekten zu
+tun hat), wäre sehr wichtig zu verstehen. 
+
+
 ```{r, echo=FALSE, warning=FALSE}
-plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=ii,
+plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
      log="y", type='l', ylim=c(1,10000),
-     xlab=c("Time/days"), ylab="Cases")
-lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=ii, col="red", lty=2)
-lines(y=as.vector(xdata[xdata$Country.Region=="South Korea",])[ii], x=ii, col="darkorange", lty=4)
-lines(y=as.vector(xdata[xdata$Country.Region=="Japan",])[ii], x=ii, col="grey", lty=6)
+     xlab=c("Tage seit 22.01.2020"), ylab="Cases")
+lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
+lines(y=as.vector(xdata[xdata$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
+lines(y=as.vector(xdata[xdata$Country.Region=="Japan",])[ii], x=x, col="darkgreen", lty=6)
 legend("topleft",
-       legend=c("Italy", "Germany", "South Korea", "Japan"),
+       legend=c("Italy", "Germany", "Korea, South", "Japan"),
        bty="n",
-       col=c("black", "red", "darkorange", "grey"),
+       col=c("black", "red", "darkorange", "darkgreen"),
        lty=c(1:6))
+```
+
+Um den Vergleich der Steigungen noch etwas quantitativer zu machen,
+wird für die nächste Abbildung Tag eins ungefähr auf den Tag $D$ gelegt,
+wo der exponentielle Anstieg beginnt und mit der Anzahl $X$ an diesem Tag
+normalisiert. D.h. alle Kurven fangen bei eins an.
+In punkto Steigung ist Japan tatsächlich ein Ausreißer, hier
+exemplarisch am Vergleich zu China, Italien und Deutschland zu erkennen. 
+
+
+```{r, echo=FALSE, warning=FALSE}
+plot(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region),ii]))/sum(xdata[grepl("China", x=xdata$Country.Region),ii[1]]), x=x,
+     log="y", type='l', ylim=c(1,150), xlim=c(0,20),
+     xlab=c("Tage - D + 1"), ylab="Cases/Cases(D)")
+lines(y=as.vector(xdata[xdata$Country.Region=="Germany",ii])/xdata[xdata$Country.Region=="Germany",ii[34]], x=x-33, col="red", lty=2)
+lines(y=as.vector(xdata[xdata$Country.Region=="Italy",ii])/xdata[xdata$Country.Region=="Italy",ii[33]], x=x-32, col="blue", lty=3)
+lines(y=as.vector(xdata[xdata$Country.Region=="Japan",ii])/xdata[xdata$Country.Region=="Japan",ii[25]], x=x-24, col="darkgreen", lty=6)
+legend("topleft",
+       legend=c("Festland China (D bei Tag 1)", "Germany (D bei Tag 34)", "Italy (D bei Tag 33)", "Japan (D bei Tag 25)"),
+       bty="n",
+       col=c("black", "red", "blue", "darkgreen"),
+       lty=c(1,2,3,6))
 ```
 
 
 # Todesfälle
 
+Bei den Todesfällen ergibt sich natürlich ein recht ähnliches Bild wie
+bei den bestätigten Infektionen. Allerdings gibt es auch hier sehr
+auffällige Unterschiede.
+
+Erstens hat Deutschland eine im Vergleich zu allen anderen Staaten
+extrem geringe Anzahl von Todesfällen. Dagegen hat Italien 
+eine extrem hohe Sterberate. Wieder sieht es so aus, als
+hätte Südkorea es geschafft, die Verbreitung zu verlangsamen.
+
+Spanien, Frankreich und die USA zeigen wiederum sehr ähnliches
+Verhalten. Was unterscheided hier Deutschland von den anderen Ländern?
+Werden nicht alle Sterbefälle auf das Virus getestet?
+
 ```{r, echo=FALSE, warning=FALSE}
-plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=ii,
-     log="y", type='l', ylim=c(1,1000),
-     xlab=c("Time/days"), ylab="Deaths")
-lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=ii, col="red", lty=2)
-lines(y=as.vector(colSums(xdatad[xdatad$Country.Region=="US",ii])), x=ii, col="blue", lty=3)
-lines(y=as.vector(xdatad[xdatad$Country.Region=="South Korea",])[ii], x=ii, col="darkorange", lty=4)
-lines(y=as.vector(xdatad[xdatad$Country.Region=="France",])[ii], x=ii, col="darkgreen", lty=5)
+plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
+     log="y", type='l', ylim=c(1,1000), xlim=c(25,N-5),
+     xlab=c("Tage seit 22.01.2020"), ylab="Deaths")
+lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
+lines(y=as.vector(colSums(xdatad[xdatad$Country.Region=="US",ii])), x=x, col="blue", lty=3)
+lines(y=as.vector(xdatad[xdatad$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
+lines(y=as.vector(colSums(xdatad[xdatad$Country.Region=="France",ii])), x=x, col="darkgreen", lty=5)
+lines(y=as.vector(xdatad[xdata$Country.Region=="Spain",])[ii], x=x, col="grey", lty=6)
 legend("topleft",
-       legend=c("Italy", "Germany", "US", "South Korea", "France"),
+       legend=c("Italy", "Germany", "US", "Korea, South", "France", "Spain"),
        bty="n",
-       col=c("black","red", "blue", "darkorange", "darkgreen"),
+       col=c("black","red", "blue", "darkorange", "darkgreen", "grey"),
        lty=c(1:5))
 ```
+
+Wenn man widerum Japan mit in den Vergleich aufnimmt, so bestätigt
+sich der langsamere Anstieg der Fallzahlen, allerdings sind die Zahlen
+hier noch zu klein, um wirklich aussagekräftig zu sein.
+
+```{r, echo=FALSE, warning=FALSE}
+plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
+     log="y", type='l', ylim=c(1,1000),  xlim=c(25,N-5),
+     xlab=c("Tage seit 22.01.2020"), ylab="Cases")
+lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
+lines(y=as.vector(xdatad[xdatad$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
+lines(y=as.vector(xdatad[xdatad$Country.Region=="Japan",])[ii], x=x, col="darkgreen", lty=6)
+legend("topleft",
+       legend=c("Italy", "Germany", "Korea, South", "Japan"),
+       bty="n",
+       col=c("black", "red", "darkorange", "darkgreen"),
+       lty=c(1:6))
+```
+
+# Extrapolation
+
+Am Anfang einer solchen Infektionswelle erwartet man einen
+exponentiellen Anstieg der Anzahl der Infektionen. Dies basiert auf
+der Tatsache, dass jeder Infizierte pro Tag im Mittel eine bestimmte
+Anzahl von weiteren Personen infiziert.
+
+Dieser exponentielle Anstieg ist so lange zu erwarten, wie
+
+1. keine Gegenmaßnahmen getroffen werden.
+2. es genügend nicht Infizierte gibt, die infiziert werden können.
+
+Wenn diese Annahmen nicht mehr erfüllt sind, muss man eine logistische
+Gleichung oder ähnliches benutzen. 
+
+Da es für Deutschland so aussieht, als wäre die Entwicklung momentan
+in diesem exponentiellen Teil, kann man einen exponentiellen Anstieg
+\[
+C(d)\ =\ C_0 \cdot \exp(\gamma (d - d_0)) 
+\]
+an die Daten fitten, mit $d$ den Tagen, $d_0$ den Tag an dem der
+exponentielle Anstieg anfängt und $C_0$ die Anzahl Fälle am Tag
+$d_0$. $\gamma$ ist soetwas wie die Wachstumsrate, die an die Daten
+gefittet wird. Für Deutschland wäre $d_0=34$. $C(d)$ ist die Anzahl
+Infizierter, also bestätigte Fälle minus wieder Genesene und Todesfälle.
+
+```{r, echo=FALSE, warning=FALSE}
+jj <- ii[c(34:length(ii))]
+cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
+  as.vector(xdatar[xdata$Country.Region=="Germany",jj]) -
+  as.vector(xdatad[xdata$Country.Region=="Germany",jj]) 
+plot(y=cdata, x=x[jj]-4,
+     log="y", type='l', ylim=c(1,1000),
+     xlab=c("d"), ylab="C")
+lcdata <- log(unlist(cdata))
+names(lcdata) <- NULL
+y <- x[jj]-4
+fit <- lm(lcdata ~ y + 1)
+lines(x=x[jj]-4, y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[jj]-4)),
+      col="red")
+```
+
+Der Fit an die Daten wird durch die rote Linie dargestellt. Der Wert
+für die Wachstumsrate beträgt $\gamma=`r fit$coefficients[2]`$. Das
+bedeutet eine Verdopplung der Anzahl an Infizierten alle
+$`r log(2)/fit$coefficients[2]`$ Tage. Bzw., wenn nichts geschieht und
+wir weiter im exponentiell ansteigenden Ast bleiben, dann haben wir in ca.
+$`r round(log(10^6/exp(fit$coefficients[1]))/fit$coefficients[2])`$ Tagen
+eine Millionen Infizierte.
