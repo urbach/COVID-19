@@ -1,7 +1,6 @@
 ---
 title: "COVID19"
 author: "Carsten Urbach"
-date: "10.03.2020"
 output:
   pdf_document:
     
@@ -35,6 +34,29 @@ xdata <- read.csv("time_series_19-covid-Confirmed.csv")
 N <- dim(xdata)[2]
 ii <- c(5:N)
 x <- c(1:length(ii))
+
+xnames <- colnames(xdata)
+lastday<-xnames[length(xnames)]
+n<-nchar(lastday)
+lastday <- substr(x=lastday, start=2, stop=n)
+
+bonn <- rep(0, length(ii))
+                                        #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
+## 52 is 20
+bonn[c(40:51)] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18)
+
+stripX <- function(x) {
+  if(length(x) == 1) {
+    return(substr(x=x, start=2, stop=nchar(x)))
+  }
+  else {
+    res <- c()
+    for(i in c(1:length(x))) {
+      res[i] <- substr(x=x[i], start=2, stop=nchar(x[i]))
+    }
+    return(res)
+  }
+}
 ```
 
 # Disclaimer
@@ -62,6 +84,9 @@ schwierig. Als Minimalannahme gehe ich allerdings davon aus, dass
 innerhalb eines Landes die Datenaufnahme konsistent erfolgt, obwohl
 klar ist, dass das z.B. in China und auch anderen Ländern nicht immer
 der Fall war. 
+
+**Der letzte Datenpunkt, der hier berücksichtig ist, ist der
+`r lastday` (amerikanisches Datumsformat).**
 
 # Bestätigte Infektionen
 
@@ -267,7 +292,7 @@ hier noch zu klein, um wirklich aussagekräftig zu sein.
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
      log="y", type='l', ylim=c(1,1000),  xlim=c(25,N-5),
-     xlab=c("Tage seit 22.01.2020"), ylab="Cases")
+     xlab=c("Tage seit 22.01.2020"), ylab="Deaths")
 lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(xdatad[xdatad$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
 lines(y=as.vector(xdatad[xdatad$Country.Region=="Japan",])[ii], x=x, col="darkgreen", lty=6)
@@ -312,18 +337,90 @@ cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
 plot(y=cdata, x=x[jj]-4,
      log="y", type='l', ylim=c(1,1000),
      xlab=c("d"), ylab="C")
+##lines(y=bonn[jj], x=x[jj])
 lcdata <- log(unlist(cdata))
 names(lcdata) <- NULL
 y <- x[jj]-4
 fit <- lm(lcdata ~ y + 1)
 lines(x=x[jj]-4, y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[jj]-4)),
       col="red")
+legend("topleft",
+       legend=c("Daten Deutschland", "Fit"),
+       bty="n", col=c("black", "red"), lty=1)
+
 ```
 
 Der Fit an die Daten wird durch die rote Linie dargestellt. Der Wert
-für die Wachstumsrate beträgt $\gamma=`r fit$coefficients[2]`$. Das
+für die Wachstumsrate beträgt
+$\gamma=`r tex.catwitherror(x=fit$coefficients[2], digits=2, with.dollar=FALSE)`$.
+Das
 bedeutet eine Verdopplung der Anzahl an Infizierten alle
-$`r log(2)/fit$coefficients[2]`$ Tage. Bzw., wenn nichts geschieht und
+$`r tex.catwitherror(x=log(2)/fit$coefficients[2], digits=2, with.dollar=FALSE)`$
+Tage. Bzw., wenn nichts geschieht und
 wir weiter im exponentiell ansteigenden Ast bleiben, dann haben wir in ca.
 $`r round(log(10^6/exp(fit$coefficients[1]))/fit$coefficients[2])`$ Tagen
 eine Millionen Infizierte.
+
+Um die Bestimmung zu verbessern können wir über Deutschland, Spanien,
+Frankreich und die USA mitteln und dann erneut fitten:
+
+```{r echo=FALSE, warning=FALSE}
+cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
+  as.vector(xdatar[xdata$Country.Region=="Germany",jj]) -
+  as.vector(xdatad[xdata$Country.Region=="Germany",jj]) +
+  as.vector(xdata[xdata$Country.Region=="Spain",jj]) -
+  as.vector(xdatar[xdata$Country.Region=="Spain",jj]) -
+  as.vector(xdatad[xdata$Country.Region=="Spain",jj]) +
+  as.vector(colSums(xdata[grepl("France", xdata$Country.Region),jj])) -
+  as.vector(colSums(xdatar[grepl("France", xdata$Country.Region),jj])) -
+  as.vector(colSums(xdatad[grepl("France", xdata$Country.Region),jj])) +
+  as.vector(colSums(xdata[grepl("US", xdata$Country.Region),jj])) -
+  as.vector(colSums(xdatar[grepl("US", xdata$Country.Region),jj])) -
+  as.vector(colSums(xdatad[grepl("US", xdata$Country.Region),jj]))
+
+cdata <- as.vector(unlist(cdata))/4
+lcdata <- log(cdata)
+
+plot(y=cdata, x=x[jj]-4,
+     log="y", type='l', ylim=c(1,1000),
+     xlab=c("d"), ylab="C")
+##lines(y=bonn[jj], x=x[jj])
+
+names(lcdata) <- NULL
+y <- x[jj]-4
+fit <- lm(lcdata ~ y + 1)
+lines(x=x[jj]-4, y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[jj]-4)),
+      col="red")
+legend("topleft",
+       legend=c("Daten (D+F+S+US)/4", "Fit"),
+       bty="n", col=c("black", "red"), lty=1)
+```
+
+Dann liegt der Wert für $\gamma$ bei
+$\gamma=`r tex.catwitherror(x=fit$coefficients[2], digits=2, with.dollar=FALSE)`$.
+also einem etwas kleineren Wert. Das
+bedeutet eine Verdopplung der Anzahl an Infizierten alle
+$`r tex.catwitherror(x=log(2)/fit$coefficients[2], digits=2, with.dollar=FALSE)`$
+Tage.
+
+## Bonn
+
+In Bonn scheinen wir gerade am Anfang der exponentiellen Entwicklung
+zu stehen. Nehmen wir an, dass sich die Lage in Bonn genauso
+entwickelt, wie in den vier oben genannten Ländern, und nehmen wir den letzten
+Datenpunkt für die Fallzahlen in Bonn von $`r bonn[length(bonn)]`$ als
+Ausgangspunkt, so
+haben wir wahrscheinlich in sieben Tagen in Bonn
+$`r round(bonn[length(bonn)]*exp(fit$coefficients[2]*7))`$
+Fälle, und in zwei Wochen
+$`r round(bonn[length(bonn)]*exp(fit$coefficients[2]*14))`$.
+
+Für Deutschland und Bonn sind die Fallzahlen ab dem 24.2.2020 in
+folgender Tabelle zusammengefasst:
+
+```{r, echo=FALSE}
+jj <- ii[c(34:length(ii))]-4
+gdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",ii]))
+kable(data.frame(stripX(colnames(xdata)[ii])[jj], gdata[jj], bonn[jj]),
+      col.names=c("Datum", "Deutschland", "Bonn"))
+```
