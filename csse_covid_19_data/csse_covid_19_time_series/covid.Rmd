@@ -2,15 +2,6 @@
 title: "COVID19"
 author: "Carsten Urbach"
 output:
-  pdf_document:
-    
-    citation_package: biblatex
-    highlight: tango
-    keep_tex: no
-    latex_engine: xelatex
-    number_sections: yes
-    toc: yes
-    toc_depth: 2
   html_document:
     
     theme: default
@@ -21,6 +12,15 @@ output:
     highlight: tango
     toc_float: yes
     code_folding: hide
+  pdf_document:
+    
+    citation_package: biblatex
+    highlight: tango
+    keep_tex: no
+    latex_engine: xelatex
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
 link_citation: yes
 mainfont: XCharter
 lang: de-DE
@@ -43,7 +43,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(0, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:52)] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20)
+bonn[c(40:53)] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36)
 
 stripX <- function(x) {
   if(length(x) == 1) {
