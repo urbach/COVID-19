@@ -43,7 +43,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(0, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:53)] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36)
+bonn[c(40:55)] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -97,7 +97,7 @@ Infektionen als Funktion der Tage seit dem 22.1.2020.
 
 ```{r, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     type='l', ylim=c(0,150000),
+     type='l', ylim=c(0,200000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
 lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
       x=x, col="blue", lty=2, lwd=1.5)
@@ -119,7 +119,7 @@ die verschiedenen Regionen besser vergleichen:
 
 ```{r, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     log="y", type='l', ylim=c(50,150000),
+     log="y", type='l', ylim=c(50,200000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
 lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
       x=x, col="blue", lty=2, lwd=1.5)
@@ -182,7 +182,7 @@ entsprechenden Maßnahmen könnte man dann auf andere Länder anwenden.
 
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,15000),
+     log="y", type='l', ylim=c(1,25000),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(colSums(xdata[grepl("US", x=xdata$Country.Region),ii])), x=x, col="blue", lty=3)
@@ -219,7 +219,7 @@ tun hat), wäre sehr wichtig zu verstehen.
 
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,15000),
+     log="y", type='l', ylim=c(1,25000),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(xdata[xdata$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
@@ -241,7 +241,7 @@ exemplarisch am Vergleich zu China, Italien und Deutschland zu erkennen.
 
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region),ii]))/sum(xdata[grepl("China", x=xdata$Country.Region),ii[1]]), x=x,
-     log="y", type='l', ylim=c(1,250), xlim=c(0,20),
+     log="y", type='l', ylim=c(1,350), xlim=c(0,20),
      xlab=c("Tage - D + 1"), ylab="Cases/Cases(D)")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",ii])/xdata[xdata$Country.Region=="Germany",ii[34]], x=x-33, col="red", lty=2)
 lines(y=as.vector(xdata[xdata$Country.Region=="Italy",ii])/xdata[xdata$Country.Region=="Italy",ii[33]], x=x-32, col="blue", lty=3)
@@ -335,7 +335,7 @@ cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
   as.vector(xdatar[xdata$Country.Region=="Germany",jj]) -
   as.vector(xdatad[xdata$Country.Region=="Germany",jj]) 
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,5000),
+     log="y", type='l', ylim=c(1,15000),
      xlab=c("d"), ylab="C")
 ##lines(y=bonn[jj], x=x[jj])
 lcdata <- log(unlist(cdata))
@@ -382,7 +382,7 @@ cdata <- as.vector(unlist(cdata))/4
 lcdata <- log(cdata)
 
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,5000),
+     log="y", type='l', ylim=c(1,15000),
      xlab=c("d"), ylab="C")
 ##lines(y=bonn[jj], x=x[jj])
 
