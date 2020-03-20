@@ -40,10 +40,10 @@ lastday<-xnames[length(xnames)]
 n<-nchar(lastday)
 lastday <- substr(x=lastday, start=2, stop=n)
 
-bonn <- rep(0, length(ii))
+bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:55)] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -182,7 +182,7 @@ entsprechenden Maßnahmen könnte man dann auf andere Länder anwenden.
 
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,25000),
+     log="y", type='l', ylim=c(1,100000),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(colSums(xdata[grepl("US", x=xdata$Country.Region),ii])), x=x, col="blue", lty=3)
@@ -219,7 +219,7 @@ tun hat), wäre sehr wichtig zu verstehen.
 
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,25000),
+     log="y", type='l', ylim=c(1,100000),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(xdata[xdata$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
@@ -335,7 +335,7 @@ cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
   as.vector(xdatar[xdata$Country.Region=="Germany",jj]) -
   as.vector(xdatad[xdata$Country.Region=="Germany",jj]) 
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,15000),
+     log="y", type='l', ylim=c(1,25000),
      xlab=c("d"), ylab="C")
 ##lines(y=bonn[jj], x=x[jj])
 lcdata <- log(unlist(cdata))
@@ -382,7 +382,7 @@ cdata <- as.vector(unlist(cdata))/4
 lcdata <- log(cdata)
 
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,15000),
+     log="y", type='l', ylim=c(1,25000),
      xlab=c("d"), ylab="C")
 ##lines(y=bonn[jj], x=x[jj])
 
@@ -421,6 +421,17 @@ folgender Tabelle zusammengefasst:
 ```{r, echo=FALSE}
 kk <- ii[c(34:length(ii))]-4
 gdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",ii]))
-kable(data.frame(stripX(colnames(xdata)[ii])[kk], gdata[kk], bonn[kk]),
-      col.names=c("Datum", "Deutschland", "Bonn"))
+idata <- as.vector(unlist(xdata[xdata$Country.Region=="Italy",ii]))
+kable(data.frame(stripX(colnames(xdata)[ii])[kk], idata[kk], gdata[kk], bonn[kk]),
+      col.names=c("Datum", "Italien", "Deutschland", "Bonn"))
+```
+
+```{r, echo=FALSE}
+plot(y=gdata[kk], x=x[kk],
+     log="y", type='l', ylim=c(1,25000),
+     xlab=c("d"), ylab="Cases")
+lines(x=x[kk], y=bonn[kk], col="red")
+legend("topleft",
+       legend=c("Deutschland", "Bonn"),
+       bty="n", lty=c(1,1), col=c("black", "red"))
 ```
