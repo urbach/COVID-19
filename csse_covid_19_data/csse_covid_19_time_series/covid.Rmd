@@ -43,7 +43,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -97,7 +97,7 @@ Infektionen als Funktion der Tage seit dem 22.1.2020.
 
 ```{r, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     type='l', ylim=c(0,200000),
+     type='l', ylim=c(0,500000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
 lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
       x=x, col="blue", lty=2, lwd=1.5)
@@ -119,7 +119,7 @@ die verschiedenen Regionen besser vergleichen:
 
 ```{r, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     log="y", type='l', ylim=c(50,200000),
+     log="y", type='l', ylim=c(50,500000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
 lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
       x=x, col="blue", lty=2, lwd=1.5)
@@ -153,10 +153,8 @@ legend("topleft",
        lty=c(1,1, 1))
 ```
 
-Es sieht so aus, als würde es ungefähr 20 Tage bis zur Genesung
-dauern. D.h. mit großer Wahrscheinlichkeit sind noch keine der
-Personen genesen, die mit dem exponentiellen Anstieg krank geworden
-sind. 
+Es sieht so aus, als würde es ungefähr 15 Tage bis zur Genesung
+dauern. 
 
 ## Verschiedene Länder im Vergleich
 
@@ -168,6 +166,15 @@ Lebensstandard.
 Es fällt sofort auf, dass Deutschland, Frankreich,
 Spanien und die USA praktisch identisch Fallzahlverläufe zeigen.
 Insbesondere ist die Steigung identisch.
+
+Meiner Meinung nach sind die Fallzahlen an sich nicht
+vergleichbar. Das liegt einfach an der Anzahl Tests pro Einwohner, die
+für die verschiedenen Länder sehr verschieden sind. Leider findet man
+für Deutschland keine offiziellen Zahlen. Für den 15.3. findet sich
+167000 Tests für Deutschland. Damit hätten wir vergleichsweise viele
+Tests in Deutschland, ca. 2000 Tests pro eine Millionen Einwohner. Zum
+Vergleich: Italien hat bis 20.3.2020 ca. 206000 Tests durchgeführt,
+die UK ca 65000 bis zum 19.3.2020.
 
 In Italien und Südkorea sind die Fallzahlen schon deutlich höher,
 allerdings ist auch hier die Steigung sehr ähnlich zu den oben
@@ -198,7 +205,7 @@ legend("topleft",
 
 Aus der letzten Abbildung könnte man versucht sein zu schließen, dass
 Deutschland zusammen mit Frankreich und Spanien in der Ausbreitung des
-Viruses ca. acht Tage hinter Italien liegt und wir damit in acht Tagen
+Viruses ca. acht Tage hinter Italien liegt und wir damit in jeweils acht Tagen
 mit ähnlichen Verhältnissen wie in Italien rechnen müssen. Dies könnte
 natürlich der Fall sein, allerdings kann dieser Unterschied meiner
 Meinung nach auch mit verschiedenen Testverfahren oder einfach mit
@@ -253,6 +260,24 @@ legend("topleft",
        lty=c(1,2,3,6))
 ```
 
+Im folgenden nochmal der genauere Vergleich zwischen den UK,
+Deutschland, den USA, Frankreich und Spanien:
+
+```{r, echo=FALSE, warning=FALSE}
+plot(y=as.vector(xdata[xdata$Country.Region=="United Kingdom" & xdata$Province.State=="United Kingdom",])[ii], x=x,
+     log="y", type='l', ylim=c(1,100000), xlim=c(34,N-4),
+     xlab=c("Tage seit 22.01.2020"), ylab="Cases")
+lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
+lines(y=as.vector(colSums(xdata[grepl("US", x=xdata$Country.Region),ii])), x=x, col="blue", lty=3)
+lines(y=as.vector(colSums(xdata[xdata$Country.Region=="France",ii])), x=x, col="darkgreen", lty=5)
+lines(y=as.vector(xdata[xdata$Country.Region=="Spain",])[ii], x=x, col="grey", lty=6)
+legend("topleft",
+       legend=c("UK", "Germany", "US", "France", "Spain"),
+       bty="n",
+       col=c("black","red", "blue", "darkgreen", "grey"),
+       lty=c(1:6))
+```
+
 
 # Todesfälle
 
@@ -303,6 +328,9 @@ legend("topleft",
        lty=c(1:6))
 ```
 
+Wenn man Italien mit Deutschland an Hand der Todesfälle vergleicht,
+ist Deutschland möglicherweise zwei bis drei Wochen später dran als Italien. 
+
 # Extrapolation
 
 Am Anfang einer solchen Infektionswelle erwartet man einen
@@ -326,7 +354,7 @@ C(d)\ =\ C_0 \cdot \exp(\gamma (d - d_0))
 an die Daten fitten, mit $d$ den Tagen, $d_0$ den Tag an dem der
 exponentielle Anstieg anfängt und $C_0$ die Anzahl Fälle am Tag
 $d_0$. $\gamma$ ist soetwas wie die Wachstumsrate, die an die Daten
-gefittet wird. Für Deutschland wäre $d_0=34$. $C(d)$ ist die Anzahl
+gefittet wird. Für Deutschland wäre $d_0=34$ eine mögliche Wahl. $C(d)$ ist die Anzahl
 Infizierter, also bestätigte Fälle minus wieder Genesene und Todesfälle.
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -335,7 +363,7 @@ cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
   as.vector(xdatar[xdata$Country.Region=="Germany",jj]) -
   as.vector(xdatad[xdata$Country.Region=="Germany",jj]) 
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,25000),
+     log="y", type='l', ylim=c(1,50000),
      xlab=c("d"), ylab="C")
 ##lines(y=bonn[jj], x=x[jj])
 lcdata <- log(unlist(cdata))
@@ -344,25 +372,57 @@ y <- x[jj-4]
 fit <- lm(lcdata ~ y + 1)
 lines(x=x[jj-4], y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[jj-4])),
       col="red")
+daystomillion <- round(log(10^6/exp(fit$coefficients[1]))/fit$coefficients[2])
+
+kk <- ii[c(45:length(ii))]
+cdata2 <- as.vector(xdata[xdata$Country.Region=="Germany",kk]) -
+  as.vector(xdatar[xdata$Country.Region=="Germany",kk]) -
+  as.vector(xdatad[xdata$Country.Region=="Germany",kk]) 
+lcdata2 <- log(unlist(cdata2))
+names(lcdata2) <- NULL
+y <- x[kk-4]
+fit2 <- lm(lcdata2 ~ y + 1)
+lines(x=x[kk-4], y=exp(fit2$coefficients[1])* exp(fit2$coefficients[2]*(x[kk-4])),
+      col="blue", lwd=2)
+daystomillion2 <- round(log(10^6/exp(fit2$coefficients[1]))/fit2$coefficients[2])
+
+
 legend("topleft",
-       legend=c("Daten Deutschland", "Fit"),
-       bty="n", col=c("black", "red"), lty=1)
+       legend=c("Daten Deutschland", "Fit", "Fit2"),
+       bty="n", col=c("black", "red", "blue"), lty=1)
 
 ```
 
-Der Fit an die Daten wird durch die rote Linie dargestellt. Der Wert
+Der Fit an die Daten von Tag $d_0=34$ an wird durch die rote Linie dargestellt. Der Wert
 für die Wachstumsrate beträgt
 $\gamma=`r tex.catwitherror(x=fit$coefficients[2], digits=2, with.dollar=FALSE)`$.
-Das
-bedeutet eine Verdopplung der Anzahl an Infizierten alle
+Das bedeutet eine Verdopplung der Anzahl an Infizierten alle
 $`r tex.catwitherror(x=log(2)/fit$coefficients[2], digits=2, with.dollar=FALSE)`$
 Tage. Bzw., wenn nichts geschieht und
-wir weiter im exponentiell ansteigenden Ast bleiben, dann haben wir in ca.
-$`r round(log(10^6/exp(fit$coefficients[1]))/fit$coefficients[2])`$ Tagen
-eine Millionen Infizierte.
+wir weiter im exponentiell ansteigenden Ast bleiben, dann haben wir ca.
+$`r daystomillion`$ Tage
+nach Tag 34 eine Millionen Infizierte, also in
+$`r daystomillion-(N-34-4)`$
+Tagen von heute gerechnet.
 
-Um die Bestimmung zu verbessern können wir über Deutschland, Spanien,
-Frankreich und die USA mitteln und dann erneut fitten:
+Mittlerweile ist $d_0=45$ möglicherweise die sinnvollere Wahl. Der
+entsprechende Fit, genannt Fit2 in der Abbildung, ist
+als die blaue Linie dargestellt.
+Für diesen Fit mit $d_0=45$ beträgt der Wert für die Wachstumsrate
+$\gamma=`r tex.catwitherror(x=fit2$coefficients[2], digits=2, with.dollar=FALSE)`$.
+Das bedeutet eine Verdopplung der Anzahl an Infizierten alle
+$`r tex.catwitherror(x=log(2)/fit2$coefficients[2], digits=2, with.dollar=FALSE)`$
+Tage. Bzw., wenn nichts geschieht und
+wir weiter im exponentiell ansteigenden Ast bleiben, dann haben wir ca.
+$`r daystomillion2`$ Tage
+nach Tag 45 eine Millionen Infizierte, also in
+$`r daystomillion2-(N-45-4)`$
+Tagen von heute gerechnet.
+
+
+Wenn wir annehmen, dass Deutschland, Spanien,
+Frankreich und die USA sich gleich verhalten, können wir über die vier Länder
+mitteln und dann erneut fitten:
 
 ```{r echo=FALSE, warning=FALSE}
 cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
@@ -426,6 +486,8 @@ kable(data.frame(stripX(colnames(xdata)[ii])[kk], idata[kk], gdata[kk], bonn[kk]
       col.names=c("Datum", "Italien", "Deutschland", "Bonn"))
 ```
 
+In der logarithmischen Abbildung sieht dies wie folgt aus:
+
 ```{r, echo=FALSE}
 plot(y=gdata[kk], x=x[kk],
      log="y", type='l', ylim=c(1,25000),
@@ -435,3 +497,6 @@ legend("topleft",
        legend=c("Deutschland", "Bonn"),
        bty="n", lty=c(1,1), col=c("black", "red"))
 ```
+
+Möglicheweise sieht man für Bonn bereits etwas früher ein Abflachen
+der Kurve als für Gesamt-Deutschland.
