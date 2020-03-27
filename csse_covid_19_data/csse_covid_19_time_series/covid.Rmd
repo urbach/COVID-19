@@ -42,7 +42,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -359,7 +359,7 @@ Infizierter (**leider gibt es keine Zahlen für die Genesenen mehr**)
 jj <- ii[c(34:length(ii))]
 cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj])
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,50000),
+     log="y", type='l', ylim=c(1,100000),
      xlab=c("d"), ylab="C")
 ##lines(y=bonn[jj], x=x[jj])
 lcdata <- log(unlist(cdata))
@@ -428,7 +428,7 @@ cdata <- as.vector(unlist(cdata))/4
 lcdata <- log(cdata)
 
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,25000),
+     log="y", type='l', ylim=c(1,100000),
      xlab=c("d"), ylab="C")
 ##lines(y=bonn[jj], x=x[jj])
 
@@ -476,7 +476,7 @@ In der logarithmischen Abbildung sieht dies wie folgt aus:
 
 ```{r, echo=FALSE}
 plot(y=gdata[kk], x=x[kk],
-     log="y", type='l', ylim=c(1,25000),
+     log="y", type='l', ylim=c(1,50000),
      xlab=c("d"), ylab="Cases")
 lines(x=x[kk], y=bonn[kk], col="red")
 legend("topleft",
