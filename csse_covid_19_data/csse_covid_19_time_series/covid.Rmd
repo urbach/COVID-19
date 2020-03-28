@@ -29,6 +29,7 @@ lang: de-DE
 
 ```{r setup, echo=FALSE}
 xdata <- read.csv("time_series_covid19_confirmed_global.csv")
+xdatar <- read.csv("time_series_covid19_recovered_global.csv")
 xdatad <- read.csv("time_series_covid19_deaths_global.csv")
 N <- dim(xdata)[2]
 ii <- c(5:N)
@@ -42,7 +43,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -143,11 +144,12 @@ Infektion in der Gesellschaft über Ansteckung.
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, log="y", type='l',
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
-lines(y=as.vector(xdatad[xdata$Country.Region=="Germany",])[ii], x=x, col="blue")
+lines(y=as.vector(xdatar[xdatar$Country.Region=="Germany",])[ii], x=x, col="red")
+lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=x, col="blue")
 legend("topleft",
-       legend=c("Confirmed", "Deaths"),
+       legend=c("Confirmed", "Recovered", "Deaths"),
        bty="n",
-       col=c("black", "blue"),
+       col=c("black", "red", "blue"),
        lty=c(1,1, 1))
 ```
 
@@ -294,7 +296,7 @@ Werden nicht alle Sterbefälle auf das Virus getestet?
 
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,5000), xlim=c(25,N-5),
+     log="y", type='l', ylim=c(1,50000), xlim=c(25,N-5),
      xlab=c("Tage seit 22.01.2020"), ylab="Deaths")
 lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(colSums(xdatad[xdatad$Country.Region=="US",ii])), x=x, col="blue", lty=3)
@@ -314,7 +316,7 @@ hier noch zu klein, um wirklich aussagekräftig zu sein.
 
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,5000),  xlim=c(25,N-5),
+     log="y", type='l', ylim=c(1,50000),  xlim=c(25,N-5),
      xlab=c("Tage seit 22.01.2020"), ylab="Deaths")
 lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(xdatad[xdatad$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
@@ -357,17 +359,19 @@ Infizierter (**leider gibt es keine Zahlen für die Genesenen mehr**)
 
 ```{r, echo=FALSE, warning=FALSE}
 jj <- ii[c(34:length(ii))]
+kk <- ii[c(34:47)]
 cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj])
 plot(y=cdata, x=x[jj-4],
      log="y", type='l', ylim=c(1,100000),
      xlab=c("d"), ylab="C")
+points(y=cdata, x=x[jj-4], pch=21, col="black")
 ##lines(y=bonn[jj], x=x[jj])
 lcdata <- log(unlist(cdata))
 names(lcdata) <- NULL
-y <- x[jj-4]
-fit <- lm(lcdata ~ y + 1)
-lines(x=x[jj-4], y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[jj-4])),
-      col="red")
+y <- x[kk-4]
+fit <- lm(lcdata[1:length(kk)] ~ y + 1)
+lines(x=x[kk-4], y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[kk-4])),
+      col="red", lwd=2)
 daystomillion <- round(log(10^6/exp(fit$coefficients[1]))/fit$coefficients[2])
 
 kk <- ii[c(45:length(ii))]
@@ -387,7 +391,8 @@ legend("topleft",
 
 ```
 
-Der Fit an die Daten von Tag $d_0=34$ an wird durch die rote Linie dargestellt. Der Wert
+Der Fit an die Daten von Tag $d_0=34$ bis $d=47$ wird durch die rote
+Linie dargestellt. Der Wert 
 für die Wachstumsrate beträgt
 $\gamma=`r tex.catwitherror(x=fit$coefficients[2], digits=2, with.dollar=FALSE)`$.
 Das bedeutet eine Verdopplung der Anzahl an Infizierten alle
