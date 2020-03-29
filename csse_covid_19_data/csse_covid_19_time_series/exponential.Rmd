@@ -1,0 +1,238 @@
+---
+title: "Exponetieller Wachstum"
+subtitle: "... und was sagen uns die Zahlen eigentlich?"
+author: "Carsten Urbach"
+output:
+  html_document:
+    
+    theme: default
+    df_print: paged
+    toc: yes
+    toc_depth: '2'
+    number_sections: yes
+    highlight: tango
+    toc_float: yes
+    code_folding: hide
+
+mainfont: XCharter
+lang: de-DE
+---
+
+# Exponentielles Wachstum
+
+Von exponentiellem Wachstum spricht man dann, wenn sich etwas jeden
+Tag mit einem festen Faktor vervielfacht. Also beispielsweise dann,
+wenn sich etwas jeden Tag verdoppelt. Dann beträgt der Faktor 2.
+
+Nehmen wir die Verbreitung einer ansteckenden Krankheit als Beispiel:
+Da wir eine ausgedachte Krankheit betrachen, müssen wir Annahmen
+machen, insbesondere, wie viele Personen von einem Infizierten pro Tag
+angesteckt werden. Machen wir hier die Annahme, dass jeder Infiziert
+pro Tag eine weitere Person ansteckt. Starten wir mit einem
+Infizierten, dann haben wir nach einem Tag zwei Infizierte. Nach
+zwei Tagen sind es schon vier, da jeder der zwei einen weiteren
+infiziert. Weiter geht es mit acht nach drei, 16 nach vier und 32 nach
+fünf Tagen. **Nach 14 Tagen sind es 16.384 Infizierte, wenn wir
+anehmen, dass niemand in dieser Zeit verstorben oder genesen ist.**
+
+Es ist vielleicht einfacher zu verstehen, wenn der Verlauf
+visualisiert wird. In der folgenden Animation werden auf der linken
+Seite die Infizierten als schwarze Punkte dargestellt. Man sieht, dass
+jeder Infizierte pro Tag einen weiteren ansteckt. An Tag fünf ist es
+schon schwierig, die Punkte noch auseinanderzuhalten. Im rechten
+Graphen der Animation wird die Anzahl der Infizierten entsprechend dem
+linken Graphen in Abhängigkeit vom Tag aufgetragen. Man sieht, dass
+die Zunahme der Anzahl (die Steigung der Kurve) schnell schneller
+wird. Genaugenommen verdoppelt sich nicht nur die Anzahl, sondern auch
+die Steigung jeden Tag. 
+
+```{r, cache=TRUE, echo=FALSE, fig.show='animate', interval=1., ffmpeg.format='gif', warning=FALSE, fig.width=9, fig.height=5, animation.hook = knitr::hook_gifski}
+library(animation)
+for(d in c(0:5)) {
+  old <- par(mfrow=c(1,2))
+  y <- c(1:2^d)/2^d
+  plot(NA, xlim=c(0,5), ylim=c(-0.5,0.5), xlab="Tage", yaxt="n", ylab="")
+  points(x=rep(d, time=length(y)), y=y-0.5-y[1]/2, pch=21, col="red", bg="red")
+
+  plot(NA, xlim=c(0,5), ylim=c(0, 40), xlab="Tage", ylab="Anzahl")
+  points(x=c(0:d), y=2^c(0:d), pch=21, col="red")
+  lines(x=c(0:d), y=2^c(0:d), pch=21, col="red")
+  par(old)
+}
+```
+
+## Logarithmische Abbildung
+
+Wie erkennt man exponentielles Wachstum aus Daten?
+
+Normalerweise benutzt man eine Achseneinteilung in einer Graphik, bei
+der gleicher Abstand auch gleiche Änderung der aufgetragenen Größe
+bedeutet, unabhängig davon, bei welchen Werten man sich befindet. Bei
+einer logartihmischen Skala bedeutet gleicher Abstand immer die
+gleiche Vervielfachung. Die nächste Abbildung ist identisch zur
+vorherigen, nur dass in der rechten Graphik die z-Achse logarithmisch
+ist. Die logarithmische Skala ist so gewählt, dass ein Achsenabschnitt
+immer einer Verdopplung der darunterliegenden Zahl bedeutet.
+
+Man sieht, dass auf dieser logarithmischen Skala (zur Basis zwei) die
+gleichen Daten von oben wie eine Gerade aussehen.
+
+```{r, cache=TRUE, echo=FALSE, fig.show='animate', interval=1., ffmpeg.format='gif', warning=FALSE, fig.width=9, fig.height=5, animation.hook = knitr::hook_gifski}
+
+library(animation)
+for(d in c(0:5)) {
+  old <- par(mfrow=c(1,2))
+  y <- c(1:2^d)/2^d
+  plot(NA, xlim=c(0,5), ylim=c(-0.5,0.5), xlab="Tage", yaxt="n", ylab="")
+  points(x=rep(d, time=length(y)), y=y-0.5-y[1]/2, pch=21, col="red", bg="red")
+
+  plot(NA, xlim=c(0,5), ylim=c(1, 40), xlab="Tage", ylab="Anzahl", log="y", yaxt="n")
+  points(x=c(0:d), y=2^c(0:d), pch=21, col="red")
+  lines(x=c(0:d), y=2^c(0:d), pch=21, col="red")
+  axis(side=2, at=c(1, 2, 4, 8, 16, 32))
+  par(old)
+}
+```
+
+Umgekehrt gilt, wenn man Daten mit einer logarithmischen Skala auf der
+y-Achse aufträgt und dabei eine Gerade erhält, dann handelt es sich um
+ein exponentielles Verhalten.
+
+# Beispiel
+
+Natürlich ist es im Allgemeinen bei der Ausbreitung von Krankheiten
+nicht ganz so einfach. Infizierte werden wieder gesund, es werden
+nicht immer genau gleich viele von jedem Infizierten
+angesteckt. Außerdem ist ein Population immer endlich, was bedeutet,
+dass das exponentielle Wachstum nicht ewig weitergehen kann.
+
+Als Beispiel schauen wir eine Gesellschaft an, die zugegebenermaßen
+sehr starr ist. Es gib 400 Individuen, die jeweils vier Nachbarn
+haben (oben, unten, rechts, links), mit denen sie Kontakt haben. Am
+Anfang gibt es einen Infizierten, als gefüllter roter Punkt
+dargestellt. Noch nicht infizierte sind durch schwarze gefüllte Symbole
+dargestellt, Genesene und damit immune Personen durch schwarze offene
+Symbole. 
+
+Die Annahmen sind:
+
+1. Die Krankheit ist 5 Tage ansteckend.
+2. Ein noch nicht Infizierter steckt sich bei einem Infizierten pro
+Tag mit einer Wahrscheinlichkeit von 19% an.
+3. 3% der Erkrankten sterben
+3. Nach der Krankheit sind die Individuen immun.
+
+```{r, cache=TRUE, fig.width=9, fig.height=9, echo=FALSE, fig.show='animate', interval=1., ffmpeg.format='gif', warning=FALSE, animation.hook = knitr::hook_gifski}
+
+neighbour <- function(coord, N, dir) {
+  coord <- coord-1
+  ## down
+  if(dir == 0) {
+    return( c(coord[1], ((coord[2]-1) %% N)) +1)
+  }
+  ## left
+  if(dir == 1) {
+    return( c((coord[1]-1) %% N, ((coord[2]))) +1)
+  }
+  ## up
+  if(dir == 2) {
+    return( c(coord[1], ((coord[2]+1) %% N)) +1)
+  }
+  ## right
+  if(dir == 3) {
+    return( c((coord[1]+1) %% N, ((coord[2]))) +1)
+  }
+  return(c(NA, NA))
+}
+
+update <- function(X, p=0.25, d, dur=5) {
+  N <- X$N
+  statusold <- X$status
+  for(x in c(1:N)) {
+    for(y in c(1:N)) {
+      for(dir in c(0:3)) {
+        if(X$status[x, y] == 0) {
+          ncoord <- neighbour(c(x, y), N=N, dir=dir)
+          if(statusold[ncoord[1], ncoord[2]] == 1) {
+            if(runif(1) <= p) {
+              X$status[x, y] = 1
+              X$infday[x, y] = d
+            }
+          }
+        }
+        else if(X$status[x, y] == 1) {
+          if(d-X$infday[x, y] >= dur) {
+            X$status[x, y] <- 2
+            if(runif(1) <= 0.03) X$status[x, y] <- 3
+          }
+        }
+      }
+    }
+  }
+  return(X)
+}
+
+plotpop <- function(X, d) {
+  N <- X$N
+  dx <- 10./N
+  plot(NA, xlim=c(-1,11), ylim=c(-1, 11), xlab="", ylab="", xaxt="n", yaxt="n")
+  for(x in c(1:N)) {
+    for(y in c(1:N)) {
+      if(X$status[x, y] == 0)
+        points(x=x*dx-dx/2, y=y*dx-dx/2, pch=21, bg="black", col="black", cex=1.5)
+      else if(X$status[x, y] == 1)
+        points(x=x*dx-dx/2, y=y*dx-dx/2, pch=21, bg="red", col="red", cex=1.5)
+      else if(X$status[x, y] == 2)
+        points(x=x*dx-dx/2, y=y*dx-dx/2, pch=21, bg=NA, col="black", cex=1.5)
+    }
+  }
+  legend("top", legend=c(paste0("Tag ", d)), bty="n")
+}
+
+N <- 20
+X <- list(N=N,
+          status=array(0, dim=c(N, N)),
+          infday=array(NA, dim=c(N, N)))
+
+X$status[5, 13] <- 1
+X$infday[5, 13] <- 0
+sick <- c(1)
+total <- c(1)
+dead <- c(0)
+rec <- c(0)
+plotpop(X=X, d=0)
+maxday <- 60
+p <- 0.19
+
+set.seed(9)
+for(d in c(1:maxday)) {
+  X <- update(X=X, d=d, p=p)
+  plotpop(X=X, d=d)
+  sick[d+1] <- length(which(X$status == 1))
+  total[d+1] <- length(which(X$status != 0))
+  rec[d+1] <- length(which(X$status == 2))
+  dead[d+1]  <- length(which(X$status == 3))
+}
+
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=7}
+x <- c(0:maxday)
+plot(x=x, y=total, log="y", pch=21, col="red",
+     xlab="Tage", ylab="Anzahl")
+lines(x=c(0:maxday), y=total, col="red")
+
+points(x=x, y=sick, col="blue", pch=22)
+lines(x=c(0:maxday), y=sick, col="blue")
+
+points(x=x, y=dead, col="black", pch=23)
+lines(x=c(0:maxday), y=dead, col="black")
+
+points(x=x, y=rec, col="darkgreen", pch=24)
+lines(x=c(0:maxday), y=rec, col="darkgreen")
+
+legend("topleft",
+       legend=c("Fälle gesamt", "krank", "tot", "genesen"),
+       col=c("red", "blue", "black", "darkgreen"),
+       bty="n", lty=1, pch=c(21:24))
+```
