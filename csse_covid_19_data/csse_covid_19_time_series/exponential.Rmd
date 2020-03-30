@@ -1,5 +1,5 @@
 ---
-title: "Exponetieller Wachstum"
+title: "Exponetielles Wachstum"
 subtitle: "... und was sagen uns die Zahlen eigentlich?"
 author: "Carsten Urbach"
 output:
@@ -104,10 +104,15 @@ Natürlich ist es im Allgemeinen bei der Ausbreitung von Krankheiten
 nicht ganz so einfach. Infizierte werden wieder gesund, es werden
 nicht immer genau gleich viele von jedem Infizierten
 angesteckt. Außerdem ist ein Population immer endlich, was bedeutet,
-dass das exponentielle Wachstum nicht ewig weitergehen kann.
+dass das exponentielle Wachstum nicht ewig weitergehen kann. Das
+bedeutet einerseits, dass es statistische Fluktuationen auf der
+Wachstumsrate gibt, und sich die Wachstumsrate außerdem über die Zeit
+ändern wird, je nachdem in welchem Stadium sich die Ausbreitung
+befindet. 
 
 Als Beispiel schauen wir eine Gesellschaft an, die zugegebenermaßen
-sehr starr ist. Es gib 400 Individuen, die jeweils vier Nachbarn
+sehr starr ist und nur wenig mit unserer realen Gesellschaft zu tun
+hat. Es gib 400 Individuen, die jeweils vier Nachbarn 
 haben (oben, unten, rechts, links), mit denen sie Kontakt haben. Am
 Anfang gibt es einen Infizierten, als gefüllter roter Punkt
 dargestellt. Noch nicht infizierte sind durch schwarze gefüllte Symbole
@@ -121,6 +126,9 @@ Die Annahmen sind:
 Tag mit einer Wahrscheinlichkeit von 19% an.
 3. 3% der Erkrankten sterben
 3. Nach der Krankheit sind die Individuen immun.
+
+Ein möglicher Verlauf einer Epidemie ist in der folgenden Animation
+dargestellt, die ca. 60 Tage dauert.. 
 
 ```{r, cache=TRUE, fig.width=9, fig.height=9, echo=FALSE, fig.show='animate', interval=1., ffmpeg.format='gif', warning=FALSE, animation.hook = knitr::hook_gifski}
 
@@ -216,7 +224,11 @@ for(d in c(1:maxday)) {
 
 ```
 
-```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=7}
+In der folgenden Abbildung wird der Zeitverlauf der Fälle insgesamt,
+der Kranken, der Genesenen und der Toten dargestellt, mit
+logarithmischer Skala auf der y-Achse.
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6, fig.align="center"}
 x <- c(0:maxday)
 plot(x=x, y=total, log="y", pch=21, col="red",
      xlab="Tage", ylab="Anzahl")
@@ -232,7 +244,207 @@ points(x=x, y=rec, col="darkgreen", pch=24)
 lines(x=c(0:maxday), y=rec, col="darkgreen")
 
 legend("topleft",
-       legend=c("Fälle gesamt", "krank", "tot", "genesen"),
+       legend=c("Fälle gesamt", "Kranke", "Tote", "Genesene"),
        col=c("red", "blue", "black", "darkgreen"),
        bty="n", lty=1, pch=c(21:24))
 ```
+
+Man sieht einen sehr steilen Anstieg in den Fällen zu beginn von Tag 0
+bis 5 ungefähr. Dann flacht die Kurve etwas ab, steigt aber weiterhin
+exponentiell, aber mit kleinerer Rate, da ab Tag 5 die ersten
+Individuen genesen und damit nicht mehr ansteckend und auch nicht mehr
+ansteckbar sind. Eine weitere Änderung der
+Rate findet um Tag 25 statt: Es gibt jetzt im Mittel weniger ansteckbare
+Individuen pro Erkranktem, so dass die Rate kleiner wird. Schließlich,
+um Tag 40 herum flacht die Kurve ab, weil praktisch alle Individuen
+der Population schon infiziert waren oder sind oder gestorben sind.
+
+## Einfluss eines _Lockdown_ 
+
+Im Beispiel oben ist praktisch die Gesamte Population einmal infiziert
+worden. Das liegt an den speziellen und sehr einfachen Verbindungen
+zwischen den einzelnen Individuen und der Wahrscheinlichkeit, mit der
+noch gesunde infiziert werden.
+
+Die Idee eines _lockdown_ ist, die Wahrscheinlichkeit für Ansteckung
+(drastisch) zu reduzieren und damit die Verbreitung zu stoppen bzw. zu
+verlangsamen. In obigen Beispielmodell können wir natürlich sehr
+einfach diesen Parameter ändern. Zum Beispiel können wir annehmen,
+dass ab Tag 15 die Wahrscheinlichkeit von 19% auf 10% sinkt.
+
+In den folgenden Abbildungen werden die Ergebnisse für das
+ursprüngliche Modell (durchgezogenen Linien) mit denen eines Modells
+verglichen, bei dem die Wahrscheinlichkeit ab Tag 15 von 19% auf 10%
+sinkt. 
+
+```{r, echo=FALSE, fig.width=9, fig.height=5}
+old <- par(mfrow=c(1,2))
+X <- list(N=N,
+          status=array(0, dim=c(N, N)),
+          infday=array(NA, dim=c(N, N)))
+
+X$status[5, 13] <- 1
+X$infday[5, 13] <- 0
+sick10 <- c(1)
+total10 <- c(1)
+dead10 <- c(0)
+rec10 <- c(0)
+p <- 0.19
+
+set.seed(9)
+for(d in c(1:maxday)) {
+  if(d >= 15) p <- 0.1
+  X <- update(X=X, d=d, p=p)
+  sick10[d+1] <- length(which(X$status == 1))
+  total10[d+1] <- length(which(X$status != 0))
+  rec10[d+1] <- length(which(X$status == 2))
+  dead10[d+1]  <- length(which(X$status == 3))
+}
+plot(NA, log="y", pch=21, col="red", xlim=c(0,maxday),
+     xlab="Tage", ylab="Anzahl", ylim=c(1,400),
+     main="Fälle gesamt")
+lines(x=c(0:maxday), y=total, col="red")
+lines(x=c(0:maxday), y=total10, col="red", lty=2)
+
+plot(NA, log="y", pch=21, col="red", xlim=c(0,maxday),
+     xlab="Tage", ylab="Anzahl", ylim=c(1,400),
+     main="Kranke")
+lines(x=c(0:maxday), y=sick, col="blue")
+lines(x=c(0:maxday), y=sick10, col="blue", lty=2)
+abline(v=15, col="black", lty=5)
+par(old)
+```
+
+Ab Tag 15 flacht die Kurve der gesamten Fälle erwartungsgemäß deutlich
+ab. Allerdings wird sie nie ganz flach. Dies erklärt sich damit, dass
+die Anzahl kranker in den 60 Tagen niemals auf 0 abfällt. Allerdings
+gibt es maximal 10 Kranke zur selben Zeit anstelle von maximal 100 für
+das ursprüngliche Modell. Selbst diese Reduktion würde also ein
+Gesundheitssystem deutlich entlasten, wenn es auch einfach nur
+deutlich länger dauern würde, bis sich fast alle der Population einmal
+infiziert haben.
+
+Wenn man die Wahrscheinlichkeit ab Tag 15 noch weiter reduziert, sagen
+wir auf 5%, so erhält man folgende Bilder:
+
+```{r, echo=FALSE, fig.width=9, fig.height=5}
+old <- par(mfrow=c(1,2))
+X <- list(N=N,
+          status=array(0, dim=c(N, N)),
+          infday=array(NA, dim=c(N, N)))
+
+X$status[5, 13] <- 1
+X$infday[5, 13] <- 0
+sick05 <- c(1)
+total05 <- c(1)
+dead05 <- c(0)
+rec05 <- c(0)
+p <- 0.19
+
+set.seed(9)
+for(d in c(1:maxday)) {
+  if(d >= 15) p <- 0.05
+  X <- update(X=X, d=d, p=p)
+  sick05[d+1] <- length(which(X$status == 1))
+  total05[d+1] <- length(which(X$status != 0))
+  rec05[d+1] <- length(which(X$status == 2))
+  dead05[d+1]  <- length(which(X$status == 3))
+}
+plot(NA, log="y", pch=21, col="red", xlim=c(0,maxday),
+     xlab="Tage", ylab="Anzahl", ylim=c(1,400),
+     main="Fälle gesamt")
+lines(x=c(0:maxday), y=total, col="red")
+lines(x=c(0:maxday), y=total05, col="red", lty=3)
+
+plot(NA, log="y", pch=21, col="red", xlim=c(0,maxday),
+     xlab="Tage", ylab="Anzahl", ylim=c(1,400),
+     main="Kranke")
+lines(x=c(0:maxday), y=sick, col="blue")
+lines(x=c(0:maxday), y=sick05, col="blue", lty=3)
+
+par(old)
+```
+
+Die gepunktete Linie entspricht dem Model mit 5% Wahrscheinlichkeit
+für Ansteckung ab Tag 15, verglichen wieder mit dem ursprünglichen
+Modell. In diesem Fall wird die Asbreitung tatsächlich angehalten und
+bei Tag 32 beendet.
+
+Auch auf die Todesfälle hat die Änderung der Wahrscheinlichkeit
+natürlich eine starke Auswirkung, wie in der folgenden Abbildung zu
+erkenne, in der die drei obigen Modelle verglichen werden:
+durchgezogene Linie für 19%, gestrichelte
+Linie 10% und gepunktete Linie für 5% Infektionswahrscheinlichkeit.
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6, fig.align="center"}
+plot(NA, log="y", pch=21, col="red", xlim=c(0,maxday),
+     xlab="Tage", ylab="Anzahl", ylim=c(1,40))
+lines(x=c(0:maxday), y=dead, col="black")
+lines(x=c(0:maxday), y=dead10, col="black", lty=2)
+lines(x=c(0:maxday), y=dead05, col="black", lty=3)
+```
+
+Für den Fall einer strikten Reduktion der Infektionswahrscheinlichkeit
+auf 5% werden wirklich Leben gerettet. Für die
+Infektionswahrscheinlichkeit von 10% sieht es zunächst so aus, aber
+da die Krankheitswelle viel länger dauern wird, als dargestellt, wird
+es einen ähnliche Anzahl Todesfälle geben, wie für den ursprünglichen
+Fall.
+
+Hierbei muss man allerdings bedenken, dass das Modell keine
+Überlastung von Krankenhäusern simuliert, was zu weiteren Todensfällen
+führen wird. Daher wird auch die Reduktion auf 10%
+Infektionswahrscheinlichkeit zu einer Rettung von Leben führen, da es
+nur etwa 10 Kranke gleichzeitig gibt.
+
+## ... und wenn der _Lockdown_ zu früh aufgehoben wird
+
+In der Realität stellt sich immer die Frage, wann ein _Lockdown_
+wieder aufgehoben werden kann und soll. Was passiert, wenn man dies zu
+früh macht, sieht man in folgender Simulation, in der die
+Infektionswahrscheinlichkeit erst am Tag 15 auf 5% gesenkt wurde, dann
+aber am Tag 30 wieder auf 19% steigt. Der eine Kranke am Tag 30 reicht
+aus, damit die Infektionszahlen wieder exponentiell steigen können. 
+
+```{r, echo=FALSE, fig.width=9, fig.height=5}
+old <- par(mfrow=c(1,2))
+X <- list(N=N,
+          status=array(0, dim=c(N, N)),
+          infday=array(NA, dim=c(N, N)))
+
+X$status[5, 13] <- 1
+X$infday[5, 13] <- 0
+sick052 <- c(1)
+total052 <- c(1)
+dead052 <- c(0)
+rec052 <- c(0)
+p <- 0.19
+
+set.seed(9)
+for(d in c(1:maxday)) {
+  if(d >= 15) p <- 0.05
+  if(d >= 30) p  <- 0.19
+  X <- update(X=X, d=d, p=p)
+  sick052[d+1] <- length(which(X$status == 1))
+  total052[d+1] <- length(which(X$status != 0))
+  rec052[d+1] <- length(which(X$status == 2))
+  dead052[d+1]  <- length(which(X$status == 3))
+}
+plot(NA, log="y", pch=21, col="red", xlim=c(0,maxday),
+     xlab="Tage", ylab="Anzahl", ylim=c(1,400),
+     main="Fälle gesamt")
+lines(x=c(0:maxday), y=total, col="red")
+lines(x=c(0:maxday), y=total052, col="red", lty=2)
+
+plot(NA, log="y", pch=21, col="red", xlim=c(0,maxday),
+     xlab="Tage", ylab="Anzahl", ylim=c(1,400),
+     main="Kranke")
+lines(x=c(0:maxday), y=sick, col="blue")
+lines(x=c(0:maxday), y=sick052, col="blue", lty=2)
+
+par(old)
+```
+
+Trotzdem gewinnt man in diesem Szenario viel Zeit und entlastet ein
+Gesundheitssystem signifikant. Natürlich hängt es dabei wieder kritsch
+davon ab, wann der _Lockdown_ aufgehoben wird.
