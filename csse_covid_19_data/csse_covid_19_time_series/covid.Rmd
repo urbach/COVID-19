@@ -43,7 +43,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, NA)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, NA)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -265,7 +265,7 @@ Deutschland, den USA, Frankreich und Spanien:
 
 ```{r, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="United Kingdom" & xdata$Province.State=="",])[ii], x=x,
-     log="y", type='l', ylim=c(1,100000), xlim=c(34,N-4),
+     log="y", type='l', ylim=c(1,500000), xlim=c(34,N-4),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(colSums(xdata[grepl("US", x=xdata$Country.Region),ii])), x=x, col="blue", lty=3)
@@ -355,7 +355,7 @@ an die Daten fitten, mit $d$ den Tagen, $d_0$ den Tag an dem der
 exponentielle Anstieg anfängt und $C_0$ die Anzahl Fälle am Tag
 $d_0$. $\gamma$ ist soetwas wie die Wachstumsrate, die an die Daten
 gefittet wird. Für Deutschland wäre $d_0=34$ eine mögliche Wahl. $C(d)$ ist die Anzahl
-Infizierter (**leider gibt es keine Zahlen für die Genesenen mehr**)
+Infizierter.
 
 ```{r, echo=FALSE, warning=FALSE}
 jj <- ii[c(34:length(ii))]
@@ -374,7 +374,7 @@ lines(x=x[kk-4], y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[kk-4])),
       col="red", lwd=2)
 daystomillion <- round(log(10^6/exp(fit$coefficients[1]))/fit$coefficients[2])
 
-kk <- ii[c(45:length(ii))]
+kk <- ii[c(45:59)]
 cdata2 <- as.vector(xdata[xdata$Country.Region=="Germany",kk])
 lcdata2 <- log(unlist(cdata2))
 names(lcdata2) <- NULL
@@ -384,10 +384,20 @@ lines(x=x[kk-4], y=exp(fit2$coefficients[1])* exp(fit2$coefficients[2]*(x[kk-4])
       col="blue", lwd=2)
 daystomillion2 <- round(log(10^6/exp(fit2$coefficients[1]))/fit2$coefficients[2])
 
+ll <- ii[c(59:length(ii))]
+cdata3 <- as.vector(xdata[xdata$Country.Region=="Germany",ll])
+lcdata3 <- log(unlist(cdata3))
+names(lcdata3) <- NULL
+y <- x[ll-4]
+fit3 <- lm(lcdata3 ~ y + 1)
+lines(x=x[ll-4], y=exp(fit3$coefficients[1])* exp(fit3$coefficients[2]*(x[ll-4])),
+      col="darkgreen", lwd=2)
+daystomillion3 <- round(log(10^6/exp(fit3$coefficients[1]))/fit3$coefficients[2])
+
 
 legend("topleft",
-       legend=c("Daten Deutschland", "Fit", "Fit2"),
-       bty="n", col=c("black", "red", "blue"), lty=1)
+       legend=c("Daten Deutschland", "Fit", "Fit2", "Fit3"),
+       bty="n", col=c("black", "red", "blue", "darkgreen"), lty=1)
 
 ```
 
@@ -404,7 +414,7 @@ nach Tag 34 eine Millionen Infizierte, also in
 $`r daystomillion-(N-34-4)`$
 Tagen von heute gerechnet.
 
-Mittlerweile ist $d_0=45$ möglicherweise die sinnvollere Wahl. Der
+Mittlerweile ist $d_0=45$ bis Tag 59 eine zweite mögliche Wahl. Der
 entsprechende Fit, genannt Fit2 in der Abbildung, ist
 als die blaue Linie dargestellt.
 Für diesen Fit mit $d_0=45$ beträgt der Wert für die Wachstumsrate
@@ -416,6 +426,21 @@ wir weiter im exponentiell ansteigenden Ast bleiben, dann haben wir ca.
 $`r daystomillion2`$ Tage
 nach Tag 45 eine Millionen Infizierte, also in
 $`r daystomillion2-(N-45-4)`$
+Tagen von heute gerechnet.
+
+
+Als drittes Fitfenster gibt es mittlerweile von Tag 59 bis heute.
+Der entsprechende Fit, genannt Fit3 in der Abbildung, ist
+als die blaue Linie dargestellt.
+Für diesen Fit mit $d_0=45$ beträgt der Wert für die Wachstumsrate
+$\gamma=`r tex.catwitherror(x=fit3$coefficients[2], digits=2, with.dollar=FALSE)`$.
+Das bedeutet eine Verdopplung der Anzahl an Infizierten alle
+$`r tex.catwitherror(x=log(2)/fit3$coefficients[2], digits=2, with.dollar=FALSE)`$
+Tage. Bzw., wenn nichts geschieht und
+wir weiter im exponentiell ansteigenden Ast bleiben, dann haben wir ca.
+$`r daystomillion3`$ Tage
+nach Tag 59 eine Millionen Infizierte, also in
+$`r daystomillion3-(N-59-4)`$
 Tagen von heute gerechnet.
 
 
