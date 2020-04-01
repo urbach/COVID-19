@@ -1,0 +1,54 @@
+---
+title: "RKI Daten"
+author: "Carsten Urbach"
+output:
+  html_document:
+    
+    theme: readable
+    df_print: paged
+    toc: yes
+    toc_depth: '2'
+    number_sections: yes
+    highlight: tango
+    toc_float: yes
+    code_folding: hide
+
+---
+
+
+```{r setup}
+knitr::opts_chunk$set(fig.path=paste0("figures.rki/"),
+                      echo=FALSE,
+                      warning=FALSE,
+                      message=FALSE,
+                      dev=c("png"),
+                      dpi=300)
+
+nrw <- read.csv("nrw.csv")
+nrw <- nrw[-24,]
+Nnrw <- length(nrw[,3])
+nrw[c(10:Nnrw), c(3:4)] <- nrw[c(10:Nnrw), c(3:4)]*1000
+
+deutschland <- read.csv("gesamt.csv")
+deutschland[,c(3,4)]  <- deutschland[,c(3,4)] *1000
+ND <- length(deutschland[,3])
+```
+
+```{r initialplots}
+plot(NA, log="y", xlim=c(1,Nnrw), ylim=c(1,100000), xlab="Tage", ylab="Anzahl")
+points(x=c(1:Nnrw), y=nrw[,3], pch=21, col="red")
+lines(x=c(1:Nnrw), y=nrw[,3], lty=1, col="red")
+
+points(x=c(1:ND)+Nnrw-ND, y=deutschland[,3], pch=22, col="blue")
+lines(x=c(1:ND)+Nnrw-ND, y=deutschland[,3], lty=2, col="blue")
+
+legend("topleft",
+       legend=c("NRW", "Deutschland"), bty="n",
+       pch=c(21,22), lty=c(1,2), col=c("red", "blue"))
+```
+
+```{r increments}
+barplot(height=c(rep(NA, times=Nnrw-ND+1),diff(deutschland[,3])), ylim=c(0,10000), xlim=c(1,Nnrw), names.arg=nrw[,1],
+        legend.text=c('Deutschland'), args.legend=list(x="top", bty="n"), ylab=c("Änderung zum Vortag"))
+barplot(height=c(NA, diff(nrw[,3])), add=TRUE, col="red", legend.text=c("NRW"), args.legend=list(x="topleft", bty="n"))
+```
