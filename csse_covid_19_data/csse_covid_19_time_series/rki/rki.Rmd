@@ -27,10 +27,8 @@ knitr::opts_chunk$set(fig.path=paste0("figures.rki/"),
 nrw <- read.csv("nrw.csv")
 nrw <- nrw[-24,]
 Nnrw <- length(nrw[,3])
-nrw[c(10:Nnrw), c(3:4)] <- nrw[c(10:Nnrw), c(3:4)]*1000
 
 deutschland <- read.csv("gesamt.csv")
-deutschland[,c(3,4)]  <- deutschland[,c(3,4)] *1000
 ND <- length(deutschland[,3])
 ```
 
