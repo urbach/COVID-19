@@ -53,7 +53,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, NA)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -105,7 +105,7 @@ der Fall war.
 Zunächst der Gesamtüberblick über die Anzahl der bestätigten
 Infektionen als Funktion der Tage seit dem 22.1.2020.
 
-```{r, echo=FALSE}
+```{r welt, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
      type='l', ylim=c(0,500000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
@@ -127,7 +127,7 @@ Anzahl an Neuinfektionen in China deutlich ab und sie steigt dafür
 signifikant im Rest der Welt. Auf einer logarithmischen Skala kann man
 die verschiedenen Regionen besser vergleichen:
 
-```{r, echo=FALSE}
+```{r weltlog, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
      log="y", type='l', ylim=c(50,500000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
@@ -151,7 +151,7 @@ logarithmischen Skala. Man sieht, dass wir ca. 30 Tage lang
 nur relative eingeschleppte Fälle hatten, und dann die Verbreitung der
 Infektion in der Gesellschaft über Ansteckung. 
 
-```{r, echo=FALSE, warning=FALSE}
+```{r DE, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, log="y", type='l',
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(y=as.vector(xdatar[xdatar$Country.Region=="Germany",])[ii], x=x, col="red")
@@ -197,7 +197,7 @@ Südkorea es geschafft hat, die Ausbreitung einzudämmen. Die
 entsprechenden Maßnahmen könnte man dann auf andere Länder anwenden.
 
 
-```{r, echo=FALSE, warning=FALSE}
+```{r Comp1, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
      log="y", type='l', ylim=c(1,100000),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
@@ -234,7 +234,7 @@ Warum dies der Fall ist (wenn es nicht mit systematischen Effekten zu
 tun hat), wäre sehr wichtig zu verstehen. 
 
 
-```{r, echo=FALSE, warning=FALSE}
+```{r Comp2, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
      log="y", type='l', ylim=c(1,100000),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
@@ -256,7 +256,7 @@ In punkto Steigung ist Japan tatsächlich ein Ausreißer, hier
 exemplarisch am Vergleich zu China, Italien und Deutschland zu erkennen. 
 
 
-```{r, echo=FALSE, warning=FALSE}
+```{r Comp3, echo=FALSE, warning=FALSE}
 plot(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region),ii]))/sum(xdata[grepl("China", x=xdata$Country.Region),ii[1]]), x=x,
      log="y", type='l', ylim=c(1,350), xlim=c(0,20),
      xlab=c("Tage - D + 1"), ylab="Cases/Cases(D)")
@@ -273,7 +273,7 @@ legend("topleft",
 Im folgenden nochmal der genauere Vergleich zwischen den UK,
 Deutschland, den USA, Frankreich und Spanien:
 
-```{r, echo=FALSE, warning=FALSE}
+```{r Comp4, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="United Kingdom" & xdata$Province.State=="",])[ii], x=x,
      log="y", type='l', ylim=c(1,500000), xlim=c(34,N-4),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
@@ -304,7 +304,7 @@ Spanien, Frankreich und die USA zeigen wiederum sehr ähnliches
 Verhalten. Was unterscheided hier Deutschland von den anderen Ländern?
 Werden nicht alle Sterbefälle auf das Virus getestet?
 
-```{r, echo=FALSE, warning=FALSE}
+```{r deaths1, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
      log="y", type='l', ylim=c(1,50000), xlim=c(25,N-5),
      xlab=c("Tage seit 22.01.2020"), ylab="Deaths")
@@ -324,7 +324,7 @@ Wenn man widerum Japan mit in den Vergleich aufnimmt, so bestätigt
 sich der langsamere Anstieg der Fallzahlen, allerdings sind die Zahlen
 hier noch zu klein, um wirklich aussagekräftig zu sein.
 
-```{r, echo=FALSE, warning=FALSE}
+```{r deaths2, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
      log="y", type='l', ylim=c(1,50000),  xlim=c(25,N-5),
      xlab=c("Tage seit 22.01.2020"), ylab="Deaths")
@@ -454,6 +454,18 @@ nach Tag 59 eine Millionen Infizierte, also in
 $`r daystomillion3-(N-59-4)`$
 Tagen von heute gerechnet.
 
+Hier die gleichen Daten als Änderung zum Vortrag aufgetragen. Für
+einen exponentiellen Anstieg erwartet man ebenfalls einen
+exponentiellen Anstieg in dieser Größe:
+
+```{r increments, echo=FALSE, warning=FALSE}
+jj <- ii[c(34:length(ii))]
+cdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",jj]))
+inc <- diff(cdata)
+plot(y=c(NA, inc), x=x[jj-4], xlab="d", ylab="Äanderung zum Vortag")
+lines(y=c(NA, inc), x=x[jj-4])
+```
+
 Das gleiche nochmal, jetzt allerdings nicht einfach mit der Anzahl
 bestätigter Fälle, sondern mit der Anzahl akut Infizierter, also
 bestätigte Fälle minus Genesene minus Tote.
@@ -516,12 +528,25 @@ Das bedeutet eine Verdopplung der Anzahl an Infizierten alle
 $`r tex.catwitherror(x=log(2)/fit3$coefficients[2], digits=2, with.dollar=FALSE)`$
 Tage. 
 
+Wiederum die gleichen Daten als Änderung zum Vortrag aufgetragen.
+
+```{r incrementsinfected, echo=FALSE, warning=FALSE}
+jj <- ii[c(34:length(ii))]
+cdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",jj])) -
+  as.vector(unlist(xdatar[xdatar$Country.Region=="Germany",jj])) -
+  as.vector(unlist(xdatad[xdatad$Country.Region=="Germany",jj]))
+inc <- diff(cdata)
+plot(y=c(NA, inc), x=x[jj-4], xlab="d", ylab="Äanderung zum Vortag")
+lines(y=c(NA, inc), x=x[jj-4])
+```
+
+
 Wenn wir annehmen, dass Deutschland, Spanien,
 Frankreich und die USA sich gleich verhalten, was ungefähr bis Tag 60
 annehmbar wäre, können wir über die vier Länder
 mitteln und dann erneut fitten:
 
-```{r echo=FALSE, warning=FALSE}
+```{r fitcombined, echo=FALSE, warning=FALSE}
 kk <- ii[c(34:60)]
 cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) +
   as.vector(xdata[xdata$Country.Region=="Spain",jj]) +
@@ -578,7 +603,7 @@ kable(data.frame(stripX(colnames(xdata)[ii])[kk], idata[kk], gdata[kk], bonn[kk]
 
 In der logarithmischen Abbildung sieht dies wie folgt aus:
 
-```{r, echo=FALSE}
+```{r bonn, echo=FALSE}
 plot(y=gdata[kk], x=x[kk],
      log="y", type='l', ylim=c(1,50000),
      xlab=c("d"), ylab="Cases")
