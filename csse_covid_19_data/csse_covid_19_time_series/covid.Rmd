@@ -4,7 +4,7 @@ author: "Carsten Urbach"
 output:
   html_document:
     
-    theme: default
+    theme: readable
     df_print: paged
     toc: yes
     toc_depth: '2'
@@ -28,6 +28,16 @@ lang: de-DE
 ---
 
 ```{r setup, echo=FALSE}
+knitr::opts_chunk$set(fig.path=paste0("figures.covid/"),
+                      echo=FALSE,
+                      warning=FALSE,
+                      message=FALSE,
+                      dev=c("png"),
+                      dpi=300)
+##                      fig.width=3.5,
+##                      fig.height=4)
+
+
 xdata <- read.csv("time_series_covid19_confirmed_global.csv")
 xdatar <- read.csv("time_series_covid19_recovered_global.csv")
 xdatad <- read.csv("time_series_covid19_deaths_global.csv")
@@ -43,7 +53,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, NA)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, NA)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -357,7 +367,7 @@ $d_0$. $\gamma$ ist soetwas wie die Wachstumsrate, die an die Daten
 gefittet wird. Für Deutschland wäre $d_0=34$ eine mögliche Wahl. $C(d)$ ist die Anzahl
 Infizierter.
 
-```{r, echo=FALSE, warning=FALSE}
+```{r fitcases, echo=FALSE, warning=FALSE}
 jj <- ii[c(34:length(ii))]
 kk <- ii[c(34:47)]
 cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj])
@@ -397,7 +407,8 @@ daystomillion3 <- round(log(10^6/exp(fit3$coefficients[1]))/fit3$coefficients[2]
 
 legend("topleft",
        legend=c("Daten Deutschland", "Fit", "Fit2", "Fit3"),
-       bty="n", col=c("black", "red", "blue", "darkgreen"), lty=1)
+       bty="n", col=c("black", "red", "blue", "darkgreen"),
+       pch=c(21, NA, NA, NA), lty=1)
 
 ```
 
@@ -431,7 +442,7 @@ Tagen von heute gerechnet.
 
 Als drittes Fitfenster gibt es mittlerweile von Tag 59 bis heute.
 Der entsprechende Fit, genannt Fit3 in der Abbildung, ist
-als die blaue Linie dargestellt.
+als die grüne Linie dargestellt.
 Für diesen Fit mit $d_0=45$ beträgt der Wert für die Wachstumsrate
 $\gamma=`r tex.catwitherror(x=fit3$coefficients[2], digits=2, with.dollar=FALSE)`$.
 Das bedeutet eine Verdopplung der Anzahl an Infizierten alle
@@ -443,12 +454,75 @@ nach Tag 59 eine Millionen Infizierte, also in
 $`r daystomillion3-(N-59-4)`$
 Tagen von heute gerechnet.
 
+Das gleiche nochmal, jetzt allerdings nicht einfach mit der Anzahl
+bestätigter Fälle, sondern mit der Anzahl akut Infizierter, also
+bestätigte Fälle minus Genesene minus Tote.
+
+```{r fitinfected, echo=FALSE, warning=FALSE}
+jj <- ii[c(34:length(ii))]
+kk <- ii[c(34:47)]
+cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
+  as.vector(xdatad[xdatad$Country.Region=="Germany",jj]) -
+  as.vector(xdatar[xdatar$Country.Region=="Germany",jj])
+plot(y=cdata, x=x[jj-4],
+     log="y", type='l', ylim=c(1,100000),
+     xlab=c("d"), ylab="C")
+points(y=cdata, x=x[jj-4], pch=21, col="black")
+##lines(y=bonn[jj], x=x[jj])
+lcdata <- log(unlist(cdata))
+names(lcdata) <- NULL
+y <- x[kk-4]
+fit <- lm(lcdata[1:length(kk)] ~ y + 1)
+##lines(x=x[kk-4], y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[kk-4])),
+##      col="red", lwd=2)
+##daystomillion <- round(log(10^6/exp(fit$coefficients[1]))/fit$coefficients[2])
+
+kk <- ii[c(45:59)]
+cdata2 <- as.vector(xdata[xdata$Country.Region=="Germany",kk]) -
+  as.vector(xdatad[xdatad$Country.Region=="Germany",kk]) -
+  as.vector(xdatar[xdatar$Country.Region=="Germany",kk])
+lcdata2 <- log(unlist(cdata2))
+names(lcdata2) <- NULL
+y <- x[kk-4]
+fit2 <- lm(lcdata2 ~ y + 1)
+lines(x=x[kk-4], y=exp(fit2$coefficients[1])* exp(fit2$coefficients[2]*(x[kk-4])),
+      col="blue", lwd=2)
+daystomillion2 <- round(log(10^6/exp(fit2$coefficients[1]))/fit2$coefficients[2])
+
+ll <- ii[c(59:length(ii))]
+cdata3 <- as.vector(xdata[xdata$Country.Region=="Germany",ll]) -
+  as.vector(xdatad[xdatad$Country.Region=="Germany",ll]) -
+  as.vector(xdatar[xdatar$Country.Region=="Germany",ll])
+lcdata3 <- log(unlist(cdata3))
+names(lcdata3) <- NULL
+y <- x[ll-4]
+fit3 <- lm(lcdata3 ~ y + 1)
+lines(x=x[ll-4], y=exp(fit3$coefficients[1])* exp(fit3$coefficients[2]*(x[ll-4])),
+      col="darkgreen", lwd=2)
+daystomillion3 <- round(log(10^6/exp(fit3$coefficients[1]))/fit3$coefficients[2])
+
+
+legend("topleft",
+       legend=c("Daten Deutschland", "Fit2", "Fit3"),
+       bty="n", col=c("black", "blue", "darkgreen"),
+       pch=c(21, NA, NA), lty=1)
+
+```
+
+Auf Grundlage dieser Größe beträgt die Wachstumsrate im letzte
+Fitfenster (Fit2)
+$\gamma=`r tex.catwitherror(x=fit3$coefficients[2], digits=2, with.dollar=FALSE)`$.
+Das bedeutet eine Verdopplung der Anzahl an Infizierten alle
+$`r tex.catwitherror(x=log(2)/fit3$coefficients[2], digits=2, with.dollar=FALSE)`$
+Tage. 
 
 Wenn wir annehmen, dass Deutschland, Spanien,
-Frankreich und die USA sich gleich verhalten, können wir über die vier Länder
+Frankreich und die USA sich gleich verhalten, was ungefähr bis Tag 60
+annehmbar wäre, können wir über die vier Länder
 mitteln und dann erneut fitten:
 
 ```{r echo=FALSE, warning=FALSE}
+kk <- ii[c(34:60)]
 cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) +
   as.vector(xdata[xdata$Country.Region=="Spain",jj]) +
   as.vector(colSums(xdata[grepl("France", xdata$Country.Region),jj])) +
@@ -463,9 +537,9 @@ plot(y=cdata, x=x[jj-4],
 ##lines(y=bonn[jj], x=x[jj])
 
 names(lcdata) <- NULL
-y <- x[jj-4]
-fit <- lm(lcdata ~ y + 1)
-lines(x=x[jj-4], y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[jj-4])),
+y <- x[kk-4]
+fit <- lm(lcdata[c(1:length(kk))] ~ y + 1)
+lines(x=x[kk-4], y=exp(fit$coefficients[1])* exp(fit$coefficients[2]*(x[kk-4])),
       col="red")
 legend("topleft",
        legend=c("Daten (D+F+S+US)/4", "Fit"),
