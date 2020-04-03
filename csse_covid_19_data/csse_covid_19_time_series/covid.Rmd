@@ -107,7 +107,7 @@ Infektionen als Funktion der Tage seit dem 22.1.2020.
 
 ```{r welt, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     type='l', ylim=c(0,500000),
+     type='l', ylim=c(0,1500000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
 lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
       x=x, col="blue", lty=2, lwd=1.5)
@@ -129,7 +129,7 @@ die verschiedenen Regionen besser vergleichen:
 
 ```{r weltlog, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     log="y", type='l', ylim=c(50,500000),
+     log="y", type='l', ylim=c(50,1500000),
      xlab=c("Tage seit 22.01.2020"), ylab="Infektionen", col="red", lwd=1.5)
 lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
       x=x, col="blue", lty=2, lwd=1.5)
@@ -199,7 +199,7 @@ entsprechenden Maßnahmen könnte man dann auf andere Länder anwenden.
 
 ```{r Comp1, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,100000),
+     log="y", type='l', ylim=c(1,1000000),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(colSums(xdata[grepl("US", x=xdata$Country.Region),ii])), x=x, col="blue", lty=3)
@@ -236,7 +236,7 @@ tun hat), wäre sehr wichtig zu verstehen.
 
 ```{r Comp2, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,100000),
+     log="y", type='l', ylim=c(1,500000),
      xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
 lines(y=as.vector(xdata[xdata$Country.Region=="Korea, South",])[ii], x=x, col="darkorange", lty=4)
@@ -258,7 +258,7 @@ exemplarisch am Vergleich zu China, Italien und Deutschland zu erkennen.
 
 ```{r Comp3, echo=FALSE, warning=FALSE}
 plot(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region),ii]))/sum(xdata[grepl("China", x=xdata$Country.Region),ii[1]]), x=x,
-     log="y", type='l', ylim=c(1,350), xlim=c(0,20),
+     log="y", type='l', ylim=c(1,500), xlim=c(0,20),
      xlab=c("Tage - D + 1"), ylab="Cases/Cases(D)")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",ii])/xdata[xdata$Country.Region=="Germany",ii[34]], x=x-33, col="red", lty=2)
 lines(y=as.vector(xdata[xdata$Country.Region=="Italy",ii])/xdata[xdata$Country.Region=="Italy",ii[33]], x=x-32, col="blue", lty=3)
@@ -372,8 +372,8 @@ jj <- ii[c(34:length(ii))]
 kk <- ii[c(34:47)]
 cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj])
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,100000),
-     xlab=c("d"), ylab="C")
+     log="y", type='l', ylim=c(1,500000),
+     xlab=c("Tage seit 22.01.2020"), ylab="C")
 points(y=cdata, x=x[jj-4], pch=21, col="black")
 ##lines(y=bonn[jj], x=x[jj])
 lcdata <- log(unlist(cdata))
@@ -462,8 +462,10 @@ exponentiellen Anstieg in dieser Größe:
 jj <- ii[c(34:length(ii))]
 cdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",jj]))
 inc <- diff(cdata)
-plot(y=c(NA, inc), x=x[jj-4], xlab="d", ylab="Äanderung zum Vortag")
-lines(y=c(NA, inc), x=x[jj-4])
+##plot(y=c(NA, inc), x=x[jj-4], xlab="d", ylab="Äanderung zum Vortag")
+##lines(y=c(NA, inc), x=x[jj-4])
+barplot(height=c(NA, inc), ylab="Äanderung zum Vortag", xlab="Tage seit 22.01.2020", names.arg=x[jj-4],
+        col="red")
 ```
 
 Das gleiche nochmal, jetzt allerdings nicht einfach mit der Anzahl
@@ -477,8 +479,8 @@ cdata <- as.vector(xdata[xdata$Country.Region=="Germany",jj]) -
   as.vector(xdatad[xdatad$Country.Region=="Germany",jj]) -
   as.vector(xdatar[xdatar$Country.Region=="Germany",jj])
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,100000),
-     xlab=c("d"), ylab="C")
+     log="y", type='l', ylim=c(1,500000),
+     xlab=c("Tage seit 22.01.2020"), ylab="C")
 points(y=cdata, x=x[jj-4], pch=21, col="black")
 ##lines(y=bonn[jj], x=x[jj])
 lcdata <- log(unlist(cdata))
@@ -536,8 +538,10 @@ cdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",jj])) -
   as.vector(unlist(xdatar[xdatar$Country.Region=="Germany",jj])) -
   as.vector(unlist(xdatad[xdatad$Country.Region=="Germany",jj]))
 inc <- diff(cdata)
-plot(y=c(NA, inc), x=x[jj-4], xlab="d", ylab="Äanderung zum Vortag")
-lines(y=c(NA, inc), x=x[jj-4])
+##plot(y=c(NA, inc), x=x[jj-4], xlab="Tage seit 22.01.2020", ylab="Äanderung zum Vortag")
+##lines(y=c(NA, inc), x=x[jj-4])
+barplot(height=c(NA, inc), ylab="Äanderung zum Vortag", xlab="Tage seit 22.01.2020", names.arg=x[jj-4],
+        col="blue")
 ```
 
 
@@ -557,8 +561,8 @@ cdata <- as.vector(unlist(cdata))/4
 lcdata <- log(cdata)
 
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,100000),
-     xlab=c("d"), ylab="C")
+     log="y", type='l', ylim=c(1,500000),
+     xlab=c("Tage seit 22.01.2020"), ylab="C")
 ##lines(y=bonn[jj], x=x[jj])
 
 names(lcdata) <- NULL
@@ -578,17 +582,7 @@ bedeutet eine Verdopplung der Anzahl an Infizierten alle
 $`r tex.catwitherror(x=log(2)/fit$coefficients[2], digits=2, with.dollar=FALSE)`$
 Tage.
 
-## Bonn
-
-In Bonn scheinen wir gerade am Anfang der exponentiellen Entwicklung
-zu stehen. Nehmen wir an, dass sich die Lage in Bonn genauso
-entwickelt, wie in den vier oben genannten Ländern, und nehmen wir den letzten
-Datenpunkt für die Fallzahlen in Bonn von $`r bonn[length(bonn)]`$ als
-Ausgangspunkt, so
-haben wir wahrscheinlich in sieben Tagen in Bonn
-$`r round(bonn[length(bonn)]*exp(fit$coefficients[2]*7))`$
-Fälle, und in zwei Wochen
-$`r round(bonn[length(bonn)]*exp(fit$coefficients[2]*14))`$.
+# NRW und Bonn
 
 Für Deutschland und Bonn sind die Fallzahlen ab dem 24.2.2020 in
 folgender Tabelle zusammengefasst:
@@ -605,8 +599,8 @@ In der logarithmischen Abbildung sieht dies wie folgt aus:
 
 ```{r bonn, echo=FALSE}
 plot(y=gdata[kk], x=x[kk],
-     log="y", type='l', ylim=c(1,50000),
-     xlab=c("d"), ylab="Cases")
+     log="y", type='l', ylim=c(1,150000),
+     xlab=c("Tage seit 22.01.2020"), ylab="Cases")
 lines(x=x[kk], y=bonn[kk], col="red")
 legend("topleft",
        legend=c("Deutschland", "Bonn"),
@@ -615,3 +609,49 @@ legend("topleft",
 
 Möglicheweise sieht man für Bonn bereits etwas früher ein Abflachen
 der Kurve als für Gesamt-Deutschland.
+
+Die folgenden Daten sind vom
+[Gesundheitsministerium NRW](https://www.mags.nrw/coronavirus-fallzahlen-nrw)
+täglich seit dem 13.3. heruntergeladen. Es werden einige Städte in NRW
+und die Gesamtzahlen in NRW verglichen.
+
+```{r nrwcomp, echo=FALSE}
+bn <- read.csv("nrw/bonn.csv", header=FALSE)
+kn <- read.csv("nrw/koeln.csv", header=FALSE)
+df <- read.csv("nrw/duesseldorf.csv", header=FALSE)
+hb <- read.csv("nrw/heinsberg.csv", header=FALSE)
+nrw <- read.csv("nrw/nrw.csv", header=FALSE)
+
+x <- c(1:length(nrw$V1))
+plot(NA, xlim=range(x), ylim=c(1,10*range(nrw$V2)[2]), xlab="Datum", ylab="Fälle", log="y", xaxt="n")
+
+ii <- seq(3, length(nrw$V1), by=5)
+axis(side=1,
+     at=ii, lwd.ticks=1.5,
+     labels=nrw$V1[ii])
+axis(side=1, lwd.ticks=0.3,
+     at=c(1:length(nrw$V1)),
+     labels=FALSE)
+
+
+lines(x=x, y=nrw$V2, col="red", lty=1)
+points(x=x, y=nrw$V2, col="red", pch=21)
+
+lines(x=x, y=bn$V2, col="blue", lty=2)
+points(x=x, y=bn$V2, col="blue", pch=22)
+
+lines(x=x, y=kn$V2, col="darkgreen", lty=3)
+points(x=x, y=kn$V2, col="darkgreen", pch=23)
+
+lines(x=x, y=df$V2, col="darkorange", lty=4)
+points(x=x, y=df$V2, col="darkorange", pch=24)
+
+lines(x=x, y=hb$V2, col="black", lty=5)
+points(x=x, y=hb$V2, col="black", pch=25)
+
+legend("topleft",
+       legend=c("NRW gesamt", "Bonn", "Köln", "Düsseldorf", "Heinsberg"),
+       bty="n", col=c("red", "blue", "darkgreen", "darkorange", "black"),
+       pch=c(21:25), lty=c(1:5))
+
+```
