@@ -5,7 +5,7 @@ author: "Carsten Urbach"
 output:
   html_document:
     
-    theme: default
+    theme: readable
     df_print: paged
     toc: yes
     toc_depth: '2'
