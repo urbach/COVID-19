@@ -53,7 +53,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294, 294, 353, NA)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294, 294, 353, 370, 395, NA)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -503,7 +503,7 @@ lines(x=x[kk-4], y=exp(fit2$coefficients[1])* exp(fit2$coefficients[2]*(x[kk-4])
       col="blue", lwd=2)
 daystomillion2 <- round(log(10^6/exp(fit2$coefficients[1]))/fit2$coefficients[2])
 
-ll <- ii[c(59:length(ii))]
+ll <- ii[c(59:68)]
 cdata3 <- as.vector(xdata[xdata$Country.Region=="Germany",ll]) -
   as.vector(xdatad[xdatad$Country.Region=="Germany",ll]) -
   as.vector(xdatar[xdatar$Country.Region=="Germany",ll])
@@ -515,22 +515,35 @@ lines(x=x[ll-4], y=exp(fit3$coefficients[1])* exp(fit3$coefficients[2]*(x[ll-4])
       col="darkgreen", lwd=2)
 daystomillion3 <- round(log(10^6/exp(fit3$coefficients[1]))/fit3$coefficients[2])
 
+mm <- ii[c(67:length(ii))]
+cdata3 <- as.vector(xdata[xdata$Country.Region=="Germany",mm]) -
+  as.vector(xdatad[xdatad$Country.Region=="Germany",mm]) -
+  as.vector(xdatar[xdatar$Country.Region=="Germany",mm])
+lcdata3 <- log(unlist(cdata3))
+names(lcdata3) <- NULL
+y <- x[mm-4]
+fit4 <- lm(lcdata3 ~ y + 1)
+lines(x=x[mm-4], y=exp(fit4$coefficients[1])* exp(fit4$coefficients[2]*(x[mm-4])),
+      col="darkorange", lwd=2)
+daystomimmion3 <- round(log(10^6/exp(fit4$coefficients[1]))/fit4$coefficients[2])
+
 
 legend("topleft",
-       legend=c("Daten Deutschland", "Fit2", "Fit3"),
-       bty="n", col=c("black", "blue", "darkgreen"),
-       pch=c(21, NA, NA), lty=1)
+       legend=c("Daten Deutschland", "Fit2", "Fit3", "Fit4"),
+       bty="n", col=c("black", "blue", "darkgreen", "darkorange"),
+       pch=c(21, NA, NA, NA), lty=1)
 
 ```
 
 Auf Grundlage dieser Größe beträgt die Wachstumsrate im letzte
-Fitfenster (Fit2)
-$\gamma=`r tex.catwitherror(x=fit3$coefficients[2], digits=2, with.dollar=FALSE)`$.
+Fitfenster (Fit4)
+$\gamma=`r tex.catwitherror(x=fit4$coefficients[2], digits=2, with.dollar=FALSE)`$.
 Das bedeutet eine Verdopplung der Anzahl an Infizierten alle
-$`r tex.catwitherror(x=log(2)/fit3$coefficients[2], digits=2, with.dollar=FALSE)`$
-Tage. 
-
-Wiederum die gleichen Daten als Änderung zum Vortrag aufgetragen.
+$`r tex.catwitherror(x=log(2)/fit4$coefficients[2], digits=2, with.dollar=FALSE)`$
+Tage. Es ist allerdings fraglich, ob die Entwicklung noch exponentiell
+ist. Die folgende Abbildung, die wiederum die Änderungem relativ zum
+Vortag als Funktion der Tage darstellt, suggeriet eher lineares
+Wachstum innerhalb substantieller Fluktuationen.
 
 ```{r incrementsinfected, echo=FALSE, warning=FALSE}
 jj <- ii[c(34:length(ii))]
