@@ -448,3 +448,11 @@ par(old)
 Trotzdem gewinnt man in diesem Szenario viel Zeit und entlastet ein
 Gesundheitssystem signifikant. Natürlich hängt es dabei wieder kritsch
 davon ab, wann der _Lockdown_ aufgehoben wird.
+
+
+# Ein realistischeres Netzwerk
+
+```{r}
+require(igraph)
+
+```

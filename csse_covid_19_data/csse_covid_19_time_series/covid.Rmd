@@ -53,7 +53,7 @@ lastday <- substr(x=lastday, start=2, stop=n)
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294, 294, 353, 370, 395, 412, NA)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294, 294, 353, 370, 395, 412, 416, NA)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -557,11 +557,35 @@ barplot(height=c(NA, inc), ylab="Äanderung zum Vortag", xlab="Tage seit 22.01.2
         col="blue")
 ```
 
+Die Fluktuationen auf diesen Daten sind offensichtlich sehr groß. Dies
+liegt dem Vernehmen nach an verspäteten Meldungen, Wochenenden und
+anderen Dingen. Eine Möglichkeit, diese Fluktuationen ein wenig zu
+glätten, ist jeweils drei Tage zu mitteln.
 
-Wenn wir annehmen, dass Deutschland, Spanien,
-Frankreich und die USA sich gleich verhalten, was ungefähr bis Tag 60
-annehmbar wäre, können wir über die vier Länder
-mitteln und dann erneut fitten:
+```{r incrementsinfectedaveraged, echo=FALSE, warning=FALSE}
+jj <- ii[c(34:length(ii))]
+cdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",jj])) -
+  as.vector(unlist(xdatar[xdatar$Country.Region=="Germany",jj])) -
+  as.vector(unlist(xdatad[xdatad$Country.Region=="Germany",jj]))
+inc <- diff(cdata)
+incav <- c()
+for(i in c(1:length(inc))) {
+  if(i == 1) incav[i] = 2*inc[i] + inc[i+1]
+  else if(i == length(inc)) incav[i] = 2*inc[i] + inc[i-1]
+  else incav[i] = inc[i+1] + inc[i] + inc[i-1]
+}
+incav <- incav/3
+##plot(y=c(NA, inc), x=x[jj-4], xlab="Tage seit 22.01.2020", ylab="Äanderung zum Vortag")
+##lines(y=c(NA, inc), x=x[jj-4])
+barplot(height=c(NA, incav), ylab="Äanderung zum Vortag (gemittelt)", xlab="Tage seit 22.01.2020", names.arg=x[jj-4],
+        col="blue")
+```
+
+
+Zu Beginn des exponentiellen Anstiegs haben sich Deutschland, Spanien,
+Frankreich und die USA sehr ähnlich verhalten, was ungefähr bis Tag 60
+angehalten hat. Wenn man über diese vier Länder mittelt und erneut
+fittet bekommt man:
 
 ```{r fitcombined, echo=FALSE, warning=FALSE}
 kk <- ii[c(34:60)]
@@ -588,7 +612,7 @@ legend("topleft",
        bty="n", col=c("black", "red"), lty=1)
 ```
 
-Dann liegt der Wert für $\gamma$ bei
+Dann liegt der Wert für $\gamma$ für den Anfangsanstieg bei
 $\gamma=`r tex.catwitherror(x=fit$coefficients[2], digits=2, with.dollar=FALSE)`$.
 also einem etwas kleineren Wert. Das
 bedeutet eine Verdopplung der Anzahl an Infizierten alle
