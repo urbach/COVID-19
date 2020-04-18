@@ -452,7 +452,161 @@ davon ab, wann der _Lockdown_ aufgehoben wird.
 
 # Ein realistischeres Netzwerk
 
-```{r}
+Das quadratische Gitter mit periodischen Randbedingungen von oben ist
+natürlich sehr unrealistisch. Eine Gesellschaft kann realistischer
+durch sogenannte _small world_ Netzwerke abgebildet werden. Als
+Beispiel nutze ich hier entweder ein
+_[Watts–Strogatz](https://en.wikipedia.org/wiki/Watts%E2%80%93Strogatz_model)_
+small world Modell oder ein
+[Barabási-Albert-Modell](https://de.wikipedia.org/wiki/Barab%C3%A1si-Albert-Modell).
+
+Zunächst das Watts–Strogatz Modell:
+
+```{r setupsmallworld, cache=FALSE}
 require(igraph)
+set.seed(9)
+dim <- 2
+n0 <- 20
+## a small world network with 40000 nodes
+g <- sample_smallworld(dim=dim, size=n0, nei=3, p=0.05)
+p <- 0.01
+```
+
+Die Anzahl der Knoten beträgt $`r n0^dim`$ Knoten.
+
+```{r update2, echo=FALSE}
+update2 <- function(X, g, p=0.25, d, idur=5, dur=14, pd=0.03) {
+  N <- X$N
+  statusold <- X$status
+  for(i in c(1:N)) {
+    if(statusold[i] == 0) {
+      for(nb in neighbors(g, v=i)) {
+        if(statusold[nb] == 2) {
+          if(runif(1) <= p) {
+            X$status[i]  <-  1
+            X$infday[i]  <-  d
+          }
+        }
+      }
+    }
+    else if(statusold[i] == 1) {
+      if((d-X$infday[i]) >= idur) {
+        X$status[i] <- 2
+      }
+    }
+    else if(statusold[i] == 2) {
+      if((d-X$infday[i]) >= (dur + idur)) {
+        X$status[i] <- 3
+        if(runif(1) <= pd) X$status[i] <- 4
+      }
+    }
+  }
+  return(X)
+}
+```
+
+
+```{r, echo=FALSE}
+N <- n0^dim
+X <- list(N=N,
+          status=rep(0, times=N),
+          infday=rep(NA, times=N))
+
+X$status[7] <- 2
+X$infday[7] <- 0
+incub <- c(0)
+sick <- c(1)
+total <- c(1)
+dead <- c(0)
+rec <- c(0)
+maxday <- 160
+p <- 0.19
+
+set.seed(9)
+for(d in c(1:maxday)) {
+  X <- update2(X=X, g=g, d=d, p=p)
+  incub[d+1] <- length(which(X$status == 1))
+  sick[d+1] <- length(which(X$status == 2))
+  total[d+1] <- length(which(X$status != 0))
+  rec[d+1] <- length(which(X$status == 3))
+  dead[d+1]  <- length(which(X$status == 4))
+}
 
 ```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6, fig.align="center"}
+x <- c(0:maxday)
+plot(x=x, y=total, log="y", pch=21, col="red",
+     xlab="Tage", ylab="Anzahl")
+lines(x=c(0:maxday), y=total, col="red")
+
+points(x=x, y=sick, col="blue", pch=22)
+lines(x=c(0:maxday), y=sick, col="blue")
+
+points(x=x, y=dead, col="black", pch=23)
+lines(x=c(0:maxday), y=dead, col="black")
+
+points(x=x, y=rec, col="darkgreen", pch=24)
+lines(x=c(0:maxday), y=rec, col="darkgreen")
+
+legend("topleft",
+       legend=c("Fälle gesamt", "Kranke", "Tote", "Genesene"),
+       col=c("red", "blue", "black", "darkgreen"),
+       bty="n", lty=1, pch=c(21:24))
+```
+
+Nun das Barabási-Albert-Modell:
+
+
+```{r, echo=FALSE}
+g <- sample_pa(n=n0^dim, m=2, directed=FALSE)
+p <- 0.19
+
+N <- n0^dim
+X <- list(N=N,
+          status=rep(0, times=N),
+          infday=rep(NA, times=N))
+
+X$status[7] <- 2
+X$infday[7] <- 0
+incub <- c(0)
+sick <- c(1)
+total <- c(1)
+dead <- c(0)
+rec <- c(0)
+maxday <- 160
+p <- 0.19
+
+set.seed(9)
+for(d in c(1:maxday)) {
+  X <- update2(X=X, g=g, d=d, p=p)
+  incub[d+1] <- length(which(X$status == 1))
+  sick[d+1] <- length(which(X$status == 2))
+  total[d+1] <- length(which(X$status != 0))
+  rec[d+1] <- length(which(X$status == 3))
+  dead[d+1]  <- length(which(X$status == 4))
+}
+
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=6, fig.align="center"}
+x <- c(0:maxday)
+plot(x=x, y=total, log="y", pch=21, col="red",
+     xlab="Tage", ylab="Anzahl")
+lines(x=c(0:maxday), y=total, col="red")
+
+points(x=x, y=sick, col="blue", pch=22)
+lines(x=c(0:maxday), y=sick, col="blue")
+
+points(x=x, y=dead, col="black", pch=23)
+lines(x=c(0:maxday), y=dead, col="black")
+
+points(x=x, y=rec, col="darkgreen", pch=24)
+lines(x=c(0:maxday), y=rec, col="darkgreen")
+
+legend("topleft",
+       legend=c("Fälle gesamt", "Kranke", "Tote", "Genesene"),
+       col=c("red", "blue", "black", "darkgreen"),
+       bty="n", lty=1, pch=c(21:24))
+```
+
