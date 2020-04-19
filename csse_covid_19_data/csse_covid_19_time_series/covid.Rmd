@@ -51,7 +51,7 @@ lastday<-xnames[length(xnames)]
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294, 294, 353, 370, 395, 412, 416, 417, 447, 474, 484, 504, 518, 530, 539, 550, 552, NA)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294, 294, 353, 370, 395, 412, 416, 417, 447, 474, 484, 504, 518, 530, 539, 550, 552, 561, NA)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -115,7 +115,8 @@ der Fall war.
 
 # Deutschland
 
-Im der nächsten Abbildung sind Anzahl der bestätigten Infektionen und
+Im der nächsten Abbildung sind Anzahl der bestätigten Infektionen, der
+Genesenen und
 der Todesfälle für Deutschland abgebildet, wiederum auf einer 
 logarithmischen Skala. Man sieht, dass wir ca. 30 Tage lang
 nur relative eingeschleppte Fälle hatten, und dann die Verbreitung der
@@ -193,7 +194,7 @@ lines(x=x[kk-4], y=exp(fit2$coefficients[1])* exp(fit2$coefficients[2]*(x[kk-4])
       col="blue", lwd=2)
 daystomillion2 <- round(log(10^6/exp(fit2$coefficients[1]))/fit2$coefficients[2])
 
-ll <- ii[c(59:length(ii))]
+ll <- ii[c(59:67)]
 cdata3 <- as.vector(xdata[xdata$Country.Region=="Germany",ll])
 lcdata3 <- log(unlist(cdata3))
 names(lcdata3) <- NULL
@@ -239,7 +240,7 @@ $`r daystomillion2-(N-45-4)`$
 Tagen von heute gerechnet.
 
 
-Als drittes Fitfenster gibt es mittlerweile von Tag 59 bis heute.
+Als drittes Fitfenster gibt es mittlerweile von Tag 59 bis 67.
 Der entsprechende Fit, genannt Fit3 in der Abbildung, ist
 als die grüne Linie dargestellt.
 Für diesen Fit mit $d_0=45$ beträgt der Wert für die Wachstumsrate
@@ -252,6 +253,9 @@ $`r daystomillion3`$ Tage
 nach Tag 59 eine Millionen Infizierte, also in
 $`r daystomillion3-(N-59-4)`$
 Tagen von heute gerechnet.
+
+Nach dem 29.03. kann man nicht mehr von exponentiellem Wachstum
+sprechen. 
 
 Hier die gleichen Daten als Änderung zum Vortrag aufgetragen. Für
 einen exponentiellen Anstieg erwartet man ebenfalls einen
@@ -487,7 +491,55 @@ legend("topleft",
 ```
 
 
-# Bestätigte Infektionen
+# Bestätigte Infektionen Welt
+
+## Kumulative Zahlen
+
+Zunächst der Gesamtüberblick über die Anzahl der bestätigten
+Infektionen als Funktion der Tage seit dem 22.1.2020.
+
+```{r welt, echo=FALSE}
+ii <- c(5:N)
+x <- c(1:length(ii))
+plot(y=as.vector(colSums(xdata[, ii])), x=x,
+     type='l', ylim=c(0,2500000),
+     xlab=c(""), ylab="Infektionen", col="red", lwd=1.5, xaxt="n")
+dateaxis(datestring)
+lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
+      x=x, col="blue", lty=2, lwd=1.5)
+lines(y=as.vector(colSums(xdata[!grepl("China", x=xdata$Country.Region), ii])),
+      x=x, col="black", lty=3, lwd=1.5)
+
+legend("topleft",
+       legend=c("Welt", "nur Festland China", "Welt ohne China"),
+       bty="n",
+       lty=c(1,2,3),
+       col=c("red", "blue", "black"))
+```
+
+Man sieht eindrucksvoll, dass bis ca. zum 20. Februar die Infektionen
+haupsächlich auf China begrenzt waren. Seitdem nimmt die offizielle
+Anzahl an Neuinfektionen in China deutlich ab und sie steigt dafür
+signifikant im Rest der Welt. Auf einer logarithmischen Skala kann man
+die verschiedenen Regionen besser vergleichen:
+
+```{r weltlog, echo=FALSE}
+plot(y=as.vector(colSums(xdata[, ii])), x=x,
+     log="y", type='l', ylim=c(50,2500000),
+     xlab=c(""), ylab="Infektionen", col="red", lwd=1.5, xaxt="n")
+dateaxis(datestring)
+lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
+      x=x, col="blue", lty=2, lwd=1.5)
+lines(y=as.vector(colSums(xdata[!grepl("China", x=xdata$Country.Region), ii])),
+      x=x, col="black", lty=3, lwd=1.5)
+
+legend("topleft",
+       legend=c("Welt", "nur Festland China", "Alles ohne China"),
+       bty="n",
+       lty=c(1,2,3),
+       col=c("red", "blue", "black"))
+```
+
 
 ## Verschiedene Länder im Vergleich
 
@@ -615,7 +667,7 @@ legend("topleft",
 ```
 
 
-# Todesfälle
+# Todesfälle Welt
 
 Bei den Todesfällen ergibt sich natürlich ein recht ähnliches Bild wie
 bei den bestätigten Infektionen. Allerdings gibt es auch hier sehr
@@ -710,49 +762,3 @@ Tage.
 
 
 
-## Welt
-
-Zunächst der Gesamtüberblick über die Anzahl der bestätigten
-Infektionen als Funktion der Tage seit dem 22.1.2020.
-
-```{r welt, echo=FALSE}
-ii <- c(5:N)
-x <- c(1:length(ii))
-plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     type='l', ylim=c(0,1500000),
-     xlab=c(""), ylab="Infektionen", col="red", lwd=1.5, xaxt="n")
-dateaxis(datestring)
-lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
-      x=x, col="blue", lty=2, lwd=1.5)
-lines(y=as.vector(colSums(xdata[!grepl("China", x=xdata$Country.Region), ii])),
-      x=x, col="black", lty=3, lwd=1.5)
-
-legend("topleft",
-       legend=c("Welt", "nur Festland China", "Welt ohne China"),
-       bty="n",
-       lty=c(1,2,3),
-       col=c("red", "blue", "black"))
-```
-
-Man sieht eindrucksvoll, dass bis ca. zum 20. Februar die Infektionen
-haupsächlich auf China begrenzt waren. Seitdem nimmt die offizielle
-Anzahl an Neuinfektionen in China deutlich ab und sie steigt dafür
-signifikant im Rest der Welt. Auf einer logarithmischen Skala kann man
-die verschiedenen Regionen besser vergleichen:
-
-```{r weltlog, echo=FALSE}
-plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     log="y", type='l', ylim=c(50,1500000),
-     xlab=c(""), ylab="Infektionen", col="red", lwd=1.5, xaxt="n")
-dateaxis(datestring)
-lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
-      x=x, col="blue", lty=2, lwd=1.5)
-lines(y=as.vector(colSums(xdata[!grepl("China", x=xdata$Country.Region), ii])),
-      x=x, col="black", lty=3, lwd=1.5)
-
-legend("topleft",
-       legend=c("Welt", "nur Festland China", "Alles ohne China"),
-       bty="n",
-       lty=c(1,2,3),
-       col=c("red", "blue", "black"))
-```
