@@ -51,7 +51,7 @@ lastday<-xnames[length(xnames)]
 bonn <- rep(NA, length(ii))
                                         #Quelle https://www.general-anzeiger-bonn.de/region/siebengebirge/koenigswinter/coronavirus-im-rhein-sieg-kreis-zahl-der-bestaetigten-faelle-steigt-auf-24_aid-49519055
 ## 52 is 20
-bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294, 294, 353, 370, 395, 412, 416, 417, 447, 474, 484, 504, 518, 530, 539, 550, 552, 561, 570, NA)
+bonn[c(40:length(ii))] <- c(1, 1, 1, 1, 1, 1, 2, 4, 5, 6, 13, 18, 20, 36, 37, 55, 64, 76, 92, 119, 132, 151, 161, 180, 205, 222, 241, 259, 268, 272, 294, 294, 353, 370, 395, 412, 416, 417, 447, 474, 484, 504, 518, 530, 539, 550, 552, 561, 570, 573, NA)
 
 stripX <- function(x) {
   if(length(x) == 1) {
@@ -407,12 +407,21 @@ cdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",jj])) -
   as.vector(unlist(xdatar[xdatar$Country.Region=="Germany",jj])) -
   as.vector(unlist(xdatad[xdatad$Country.Region=="Germany",jj]))
 jj1 <- c(2:length(cdata))
+jj4 <- c(5:length(cdata))
 r0 <- cdata[jj1]/cdata[jj1-1]
+r04 <- cdata[jj4]/cdata[jj4-4]
 plot(x=x[jj-4], y=c(NA, r0), xlab="", ylab="R",
      col="red", pch=21, ylim=c(0,4), xaxt="n")
-dateaxis(datestring[jj-4], shift=34-1)
 lines(x=x[jj-4], y=c(NA, r0), col="red")
+
+points(x=x[jj-4], y=c(rep(NA, 4), r04), col="blue", pch=22)
+lines(x=x[jj-4], y=c(rep(NA, 4), r04), col="blue")
+dateaxis(datestring[jj-4], shift=34-1)
+
 abline(h=1)
+legend("topright",
+       legend=c(expression(R[1]), expression(R[4])),
+       bty="n", pch=c(21,22), col=c("red", "blue"))
 ```
 
 ## NRW und Bonn
