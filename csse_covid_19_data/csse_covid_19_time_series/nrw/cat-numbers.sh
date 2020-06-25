@@ -37,5 +37,5 @@ rm nrw.csv
 
 for f in coronavi*; do
     echo -n $f | sed -e {s/coronavirus-fallzahlen-nrw//g}  >> nrw.csv
-    echo `grep -A 1 "<strong>Gesamt</strong>" $f | tail -1 | sed -e '{s/<td><strong>/,/g}' | sed -e '{s/<\/strong><\/td>//g}' | sed -e '{s/\\.//g}'` >> nrw.csv
+    echo `grep -A 1 "<strong>Gesamt</strong>" $f | tail -1 | sed -e '{s/<td><strong>/,/g}' | sed -e '{s/<\/strong><\/td>//g}' | sed -e '{s/\\.//g}' | sed -e '{s/<td>/,/g}' | sed -e '{s/<\/td>//g}'` >> nrw.csv
 done
