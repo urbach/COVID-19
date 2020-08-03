@@ -438,10 +438,8 @@ legend("topright",
 
 ## NRW und Bonn
 
-Für Deutschland und Bonn sind die Fallzahlen ab dem 24.2.2020 in
-folgender Tabelle zusammengefasst:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, include=FALSE, eval=FALSE}
 kk <- ii[c(34:length(ii))]-4
 gdata <- as.vector(unlist(xdata[xdata$Country.Region=="Germany",ii]))
 idata <- as.vector(unlist(xdata[xdata$Country.Region=="Italy",ii]))
@@ -449,7 +447,7 @@ kable(data.frame(datestring[kk], idata[kk], gdata[kk], bonn[kk]),
       col.names=c("Datum", "Italien", "Deutschland", "Bonn"))
 ```
 
-In der logarithmischen Abbildung sieht dies wie folgt aus:
+In der logarithmischen Abbildung sieht die Entwicklung wie folgt aus:
 
 ```{r bonn, echo=FALSE}
 plot(y=gdata[kk], x=x[kk],
@@ -523,7 +521,7 @@ Infektionen als Funktion der Tage seit dem 22.1.2020.
 ii <- c(5:N)
 x <- c(1:length(ii))
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     type='l', ylim=c(0,2500000),
+     type='l', ylim=c(0,25000000),
      xlab=c(""), ylab="Infektionen", col="red", lwd=1.5, xaxt="n")
 dateaxis(datestring)
 lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
@@ -546,7 +544,7 @@ die verschiedenen Regionen besser vergleichen:
 
 ```{r weltlog, echo=FALSE}
 plot(y=as.vector(colSums(xdata[, ii])), x=x,
-     log="y", type='l', ylim=c(50,2500000),
+     log="y", type='l', ylim=c(50,25000000),
      xlab=c(""), ylab="Infektionen", col="red", lwd=1.5, xaxt="n")
 dateaxis(datestring)
 lines(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region), ii])),
@@ -595,7 +593,7 @@ entsprechenden Maßnahmen könnte man dann auf andere Länder anwenden.
 
 ```{r Comp1, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,1000000),
+     log="y", type='l', ylim=c(1,10000000),
      xlab=c(""), ylab="Cases", xaxt="n")
 dateaxis(datestring)
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
@@ -633,7 +631,7 @@ tun hat), wäre sehr wichtig zu verstehen.
 
 ```{r Comp2, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,500000),
+     log="y", type='l', ylim=c(1,5000000),
      xlab=c(""), ylab="Cases", xaxt="n")
 dateaxis(datestring)
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
@@ -656,7 +654,7 @@ exemplarisch am Vergleich zu China, Italien und Deutschland zu erkennen.
 
 ```{r Comp3, echo=FALSE, warning=FALSE}
 plot(y=as.vector(colSums(xdata[grepl("China", x=xdata$Country.Region),ii]))/sum(xdata[grepl("China", x=xdata$Country.Region),ii[1]]), x=x,
-     log="y", type='l', ylim=c(1,50000), xlim=c(0,60),
+     log="y", type='l', ylim=c(1,500000), xlim=c(0,60),
      xlab=c("Tage - D + 1"), ylab="Cases/Cases(D)")
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",ii])/xdata[xdata$Country.Region=="Germany",ii[34]], x=x-33, col="red", lty=2)
 lines(y=as.vector(xdata[xdata$Country.Region=="Italy",ii])/xdata[xdata$Country.Region=="Italy",ii[33]], x=x-32, col="blue", lty=3)
@@ -673,7 +671,7 @@ Deutschland, den USA, Frankreich und Spanien:
 
 ```{r Comp4, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdata[xdata$Country.Region=="United Kingdom" & xdata$Province.State=="",])[ii], x=x,
-     log="y", type='l', ylim=c(1,500000), xlim=c(34,N-4),
+     log="y", type='l', ylim=c(1,5000000), xlim=c(34,N-4),
      xlab=c(""), ylab="Cases", xaxt="n")
 dateaxis(datestring)
 lines(y=as.vector(xdata[xdata$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
@@ -705,7 +703,7 @@ Werden nicht alle Sterbefälle auf das Virus getestet?
 
 ```{r deaths1, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,50000), xlim=c(25,N-5),
+     log="y", type='l', ylim=c(1,500000), xlim=c(25,N-5),
      xlab=c(""), ylab="Deaths", xaxt="n")
 dateaxis(datestring)
 lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
@@ -726,7 +724,7 @@ hier noch zu klein, um wirklich aussagekräftig zu sein.
 
 ```{r deaths2, echo=FALSE, warning=FALSE}
 plot(y=as.vector(xdatad[xdatad$Country.Region=="Italy",])[ii], x=x,
-     log="y", type='l', ylim=c(1,50000),  xlim=c(25,N-5),
+     log="y", type='l', ylim=c(1,500000),  xlim=c(25,N-5),
      xlab=c(""), ylab="Deaths", xaxt="n")
 dateaxis(datestring)
 lines(y=as.vector(xdatad[xdatad$Country.Region=="Germany",])[ii], x=x, col="red", lty=2)
@@ -759,7 +757,7 @@ cdata <- as.vector(unlist(cdata))/4
 lcdata <- log(cdata)
 
 plot(y=cdata, x=x[jj-4],
-     log="y", type='l', ylim=c(1,500000),
+     log="y", type='l', ylim=c(1,5000000),
      xlab=c(""), ylab="C", xaxt='n')
 dateaxis(datestring[jj-4], shift=34-1)
 ##lines(y=bonn[jj], x=x[jj])
